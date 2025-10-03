@@ -14,7 +14,6 @@ pandas = "^2.2.3"
 numpy = "^2.2.6"
 fastapi = "^0.112.0"
 uvicorn = { extras = ["standard"], version = "^0.30.0" }
-pandas-ta = "^0.4.67b0"
 pydantic = "^2.9.0"
 pydantic-settings = "^2.6.1"
 python-dotenv = "^1.0.1"
