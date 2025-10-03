@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import os
 from functools import lru_cache
+from pathlib import Path
 from typing import Any, Iterable
 
 import pandas as pd
@@ -14,19 +16,43 @@ SCOPES: Iterable[str] = ("https://www.googleapis.com/auth/spreadsheets.readonly"
 
 
 def _load_service_account_info() -> dict[str, Any] | None:
-    if "gcp_service_account" in st.secrets:
-        return dict(st.secrets["gcp_service_account"])  # type: ignore[arg-type]
+    secret_payload = st.secrets.get("gcp_service_account")
+    if secret_payload:
+        if isinstance(secret_payload, str):
+            try:
+                return json.loads(secret_payload)
+            except json.JSONDecodeError:
+                st.warning("`gcp_service_account` secrets entry is not valid JSON. Trying structured access.")
+        try:
+            return dict(secret_payload)
+        except Exception:  # noqa: BLE001
+            st.warning("`gcp_service_account` secrets entry has unexpected format.")
 
-    key = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
-    if not key:
-        return None
+    raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
+    if not raw_value:
+        path_hint = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY_PATH")
+        if path_hint:
+            file_path = Path(path_hint)
+            if file_path.exists():
+                raw_value = file_path.read_text(encoding="utf-8")
+        if not raw_value:
+            return None
 
-    import json
+    candidate_path = Path(raw_value)
+    if candidate_path.exists():
+        try:
+            raw_value = candidate_path.read_text(encoding="utf-8")
+        except UnicodeDecodeError as exc:  # noqa: F841
+            raise RuntimeError(
+                "`GOOGLE_SERVICE_ACCOUNT_KEY` points to a binary file. Please provide the JSON service account key."
+            ) from exc
 
     try:
-        return json.loads(key)
-    except json.JSONDecodeError:
-        return None
+        return json.loads(raw_value)
+    except json.JSONDecodeError as exc:  # pragma: no cover - configuration issue
+        raise RuntimeError(
+            "`GOOGLE_SERVICE_ACCOUNT_KEY` must contain the JSON payload or a path to the JSON service account key."
+        ) from exc
 
 
 @lru_cache(maxsize=1)
@@ -37,7 +63,7 @@ def get_credentials() -> Credentials | None:
 
     try:
         return Credentials.from_service_account_info(info, scopes=SCOPES)
-    except Exception:
+    except Exception:  # pragma: no cover - configuration issue
         return None
 
 
