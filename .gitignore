@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dylib
+
+# Virtual environments
+.env
+.venv
+venv/
+ENV/
+env.bak/
+
+# Tooling
+.mypy_cache/
+.pytype/
+.pytest_cache/
+.hypothesis/
+
+# Editors/OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local data or secrets
+*.sqlite3
+.env.local
+.credentials/
+
+# Reports
+coverage/
+!coverage/.keep
