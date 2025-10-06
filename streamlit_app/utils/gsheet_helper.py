@@ -118,9 +118,11 @@ def get_sheet_data(spreadsheet_id: str, sheet_name: str | None = None) -> list[s
 
         df = pd.DataFrame(processed_rows, columns=col_names)
         df["日付"] = pd.to_datetime(df["日付"], format="%Y/%m/%d", errors="coerce")
+
+        # メモリ最適化：float64からfloat32に変換
         for col in ("基準価額", "25日移動平均", "200日移動平均"):
             if col in df.columns:
-                df[col] = pd.to_numeric(df[col].astype(str).str.replace(",", ""), errors="coerce")
+                df[col] = pd.to_numeric(df[col].astype(str).str.replace(",", ""), errors="coerce").astype("float32")
 
         return df
     except Exception:
