@@ -56,12 +56,11 @@ def _load_service_account_info() -> dict[str, Any] | None:
 
     raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
 
-    # Debug: Check if environment variable exists
-    import sys
+    # Debug: Display in Streamlit UI
     if raw_value:
-        print(f"DEBUG: Found GOOGLE_SERVICE_ACCOUNT_KEY (length: {len(raw_value)})", file=sys.stderr)
+        st.info(f"🔍 DEBUG: GOOGLE_SERVICE_ACCOUNT_KEY が見つかりました (長さ: {len(raw_value)}文字)")
     else:
-        print("DEBUG: GOOGLE_SERVICE_ACCOUNT_KEY not found in environment", file=sys.stderr)
+        st.error("🔍 DEBUG: GOOGLE_SERVICE_ACCOUNT_KEY が環境変数に見つかりません")
 
     if not raw_value:
         path_hint = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY_PATH")
