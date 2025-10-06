@@ -123,6 +123,11 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
     if show_indicators is None:
         show_indicators = {"移動平均線": True}
 
+    # メモリ削減：データポイント数を制限（500件以上の場合は間引き）
+    if len(df) > 500:
+        step = len(df) // 500
+        df = df.iloc[::step].copy()
+
     fig = make_subplots(
         rows=5,
         cols=1,
@@ -138,6 +143,7 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
             name="基準価額",
             line=dict(color="#1f77b4", width=2),
             connectgaps=True,
+            mode="lines",  # マーカーなしでメモリ削減
         ),
         row=1,
         col=1,

@@ -60,16 +60,12 @@ tab_detail, tab_list, tab_corr = st.tabs(["詳細分析", "銘柄一覧", "相�
 
 
 with tab_detail:
-    if "selected_sheets" not in st.session_state:
-        st.session_state.selected_sheets = []
+    # セッションステート初期化（メモリ効率化）
     if "chat_history_per_fund" not in st.session_state:
         st.session_state.chat_history_per_fund = {}
-    if "technical_data_per_fund" not in st.session_state:
-        st.session_state.technical_data_per_fund = {}
-    if "technical_data" not in st.session_state:
-        st.session_state.technical_data = None
+    # technical_data_per_fundは不要なので削除（キャッシュを利用）
 
-    @st.cache_data(ttl=3600)
+    @st.cache_data(ttl=1800)  # 30分に短縮（メモリ削減）
     def load_available_sheets() -> List[str]:
         sheets = get_sheet_data(SPREADSHEET_ID, None)
         if sheets is None:
@@ -93,7 +89,7 @@ with tab_detail:
 
     if selected_sheets:
         for sheet_name in selected_sheets:
-            @st.cache_data(ttl=3600)
+            @st.cache_data(ttl=1800)  # 30分に短縮（メモリ削減）
             def load_sheet_data(sheet: str) -> pd.DataFrame | None:
                 return get_sheet_data(SPREADSHEET_ID, sheet)  # type: ignore[return-value]
 
@@ -306,8 +302,8 @@ div.stButton > button:hover {
                                 "price_ma200_ratio": float(((current_price - ma200_value) / ma200_value) * 100),
                                 "ma_cross_status": ma_cross_status,
                             }
-                            st.session_state.technical_data = technical_data
-                            st.session_state.technical_data_per_fund[sheet_name] = technical_data
+                            # technical_dataは変数として保持（セッションステートに保存しない）
+                            pass
 
                             ai_analysis = generate_personalized_analysis(technical_data)
                             if ai_analysis:
@@ -316,11 +312,19 @@ div.stButton > button:hover {
                         except Exception as exc:  # noqa: BLE001
                             st.error(f"AI分析の生成中にエラーが発生しました: {exc}")
 
-                if st.session_state.technical_data:
+                if technical_data:
                     st.markdown("### ?? AIアナリストとチャット")
                     st.markdown(f"**{sheet_name}** のテクニカル分析について、AIアナリストと対話できます。")
 
+                    # チャット履歴を最新10件に制限してメモリ削減
+                    MAX_HISTORY = 10
                     history = st.session_state.chat_history_per_fund.setdefault(sheet_name, [])
+
+                    # 履歴が制限を超えたら古いものを削除
+                    if len(history) > MAX_HISTORY:
+                        history = history[-MAX_HISTORY:]
+                        st.session_state.chat_history_per_fund[sheet_name] = history
+
                     for message in history:
                         if message["role"] == "user":
                             st.markdown(f"**?? あなた**: {message['content']}")
@@ -339,9 +343,13 @@ div.stButton > button:hover {
 
                         st.session_state.processing_message = True
                         history.append({"role": "user", "content": message})
-                        current_data = st.session_state.technical_data_per_fund.get(sheet_name, st.session_state.technical_data)
-                        response = chat_with_ai_analyst(current_data, message, history)
+                        response = chat_with_ai_analyst(technical_data, message, history[-MAX_HISTORY:])
                         history.append({"role": "assistant", "content": response})
+
+                        # 履歴を制限
+                        if len(history) > MAX_HISTORY:
+                            st.session_state.chat_history_per_fund[sheet_name] = history[-MAX_HISTORY:]
+
                         st.session_state.chat_input_value = ""
                         st.session_state.processing_message = False
 
