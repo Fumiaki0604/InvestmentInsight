@@ -18,8 +18,12 @@ SCOPES: Iterable[str] = ("https://www.googleapis.com/auth/spreadsheets.readonly"
 def _load_service_account_info() -> dict[str, Any] | None:
     st.warning("🔍 DEBUG: _load_service_account_info() が呼び出されました")
 
-    secret_payload = st.secrets.get("gcp_service_account")
-    st.info(f"🔍 DEBUG: st.secrets.get('gcp_service_account') の結果: {type(secret_payload).__name__} = {secret_payload is not None}")
+    try:
+        secret_payload = st.secrets.get("gcp_service_account")
+        st.info(f"🔍 DEBUG: st.secrets.get('gcp_service_account') の結果: {type(secret_payload).__name__} = {secret_payload is not None}")
+    except Exception as e:
+        st.error(f"🔍 DEBUG: st.secretsへのアクセスでエラー: {e}")
+        secret_payload = None
 
     if secret_payload:
         st.info("🔍 DEBUG: st.secrets に gcp_service_account が見つかりました")
