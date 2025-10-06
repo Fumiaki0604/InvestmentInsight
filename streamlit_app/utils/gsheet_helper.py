@@ -28,6 +28,17 @@ def _load_service_account_info() -> dict[str, Any] | None:
         except Exception:  # noqa: BLE001
             st.warning("`gcp_service_account` secrets entry has unexpected format.")
 
+    # Try loading from Render Secret Files locations
+    for secret_path in ["/etc/secrets/secrets.toml", "secrets.toml"]:
+        if Path(secret_path).exists():
+            try:
+                import toml
+                secrets_data = toml.load(secret_path)
+                if "gcp_service_account" in secrets_data:
+                    return dict(secrets_data["gcp_service_account"])
+            except Exception:  # noqa: BLE001
+                pass
+
     raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
     if not raw_value:
         path_hint = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY_PATH")
