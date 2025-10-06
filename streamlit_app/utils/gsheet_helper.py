@@ -92,8 +92,12 @@ def _load_service_account_info() -> dict[str, Any] | None:
             ) from exc
 
     try:
-        return json.loads(raw_value)
+        result = json.loads(raw_value)
+        st.success(f"🔍 DEBUG: JSONのパースに成功しました（キー数: {len(result)}）")
+        return result
     except json.JSONDecodeError as exc:  # pragma: no cover - configuration issue
+        st.error(f"🔍 DEBUG: JSONパースエラー: {exc}")
+        st.error(f"🔍 DEBUG: raw_valueの最初の100文字: {raw_value[:100]}")
         raise RuntimeError(
             "`GOOGLE_SERVICE_ACCOUNT_KEY` must contain the JSON payload or a path to the JSON service account key."
         ) from exc
