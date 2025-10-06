@@ -55,6 +55,14 @@ def _load_service_account_info() -> dict[str, Any] | None:
                 print(f"DEBUG: Failed to load {secret_path}: {e}", file=sys.stderr)
 
     raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
+
+    # Debug: Check if environment variable exists
+    import sys
+    if raw_value:
+        print(f"DEBUG: Found GOOGLE_SERVICE_ACCOUNT_KEY (length: {len(raw_value)})", file=sys.stderr)
+    else:
+        print("DEBUG: GOOGLE_SERVICE_ACCOUNT_KEY not found in environment", file=sys.stderr)
+
     if not raw_value:
         path_hint = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY_PATH")
         if path_hint:
