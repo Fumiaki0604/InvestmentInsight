@@ -87,13 +87,21 @@ def _load_service_account_info() -> dict[str, Any] | None:
 # Temporarily disabled cache for debugging
 # @lru_cache(maxsize=1)
 def get_credentials() -> Credentials | None:
+    st.info("🔍 DEBUG: get_credentials() が呼び出されました")
     info = _load_service_account_info()
+
     if not info:
+        st.error("🔍 DEBUG: _load_service_account_info() が None を返しました")
         return None
 
+    st.success(f"🔍 DEBUG: 認証情報を取得しました（タイプ: {type(info).__name__}）")
+
     try:
-        return Credentials.from_service_account_info(info, scopes=SCOPES)
-    except Exception:  # pragma: no cover - configuration issue
+        creds = Credentials.from_service_account_info(info, scopes=SCOPES)
+        st.success("🔍 DEBUG: 認証情報から Credentials を作成しました")
+        return creds
+    except Exception as e:  # pragma: no cover - configuration issue
+        st.error(f"🔍 DEBUG: Credentials作成エラー: {e}")
         return None
 
 
