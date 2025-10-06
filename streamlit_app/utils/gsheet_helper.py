@@ -16,8 +16,11 @@ SCOPES: Iterable[str] = ("https://www.googleapis.com/auth/spreadsheets.readonly"
 
 
 def _load_service_account_info() -> dict[str, Any] | None:
+    st.warning("🔍 DEBUG: _load_service_account_info() が呼び出されました")
+
     secret_payload = st.secrets.get("gcp_service_account")
     if secret_payload:
+        st.info("🔍 DEBUG: st.secrets に gcp_service_account が見つかりました")
         if isinstance(secret_payload, str):
             try:
                 return json.loads(secret_payload)
@@ -88,7 +91,8 @@ def _load_service_account_info() -> dict[str, Any] | None:
         ) from exc
 
 
-@lru_cache(maxsize=1)
+# Temporarily disabled cache for debugging
+# @lru_cache(maxsize=1)
 def get_credentials() -> Credentials | None:
     info = _load_service_account_info()
     if not info:
