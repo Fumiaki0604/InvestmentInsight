@@ -48,8 +48,10 @@ def get_delta_display(value: float, format_type: str = "price") -> tuple[str, st
     if value == 0:
         return ("0円", "off") if format_type == "price" else ("0", "off")
     if value > 0:
+        # プラスは緑（normal: 上昇=緑）
         return (f"+{value:,.0f}円", "normal") if format_type == "price" else (f"+{value:.1f}", "normal")
-    return (f"{value:,.0f}円", "inverse") if format_type == "price" else (f"{value:.1f}", "inverse")
+    # マイナスは赤（normal: 下降=赤）
+    return (f"{value:,.0f}円", "normal") if format_type == "price" else (f"{value:.1f}", "normal")
 
 
 st.set_page_config(page_title="投資信託ナビゲーター", page_icon="??", layout="wide")
@@ -316,8 +318,8 @@ div.stButton > button:hover {
                     st.markdown("### ?? AIアナリストとチャット")
                     st.markdown(f"**{sheet_name}** のテクニカル分析について、AIアナリストと対話できます。")
 
-                    # チャット履歴を最新10件に制限してメモリ削減
-                    MAX_HISTORY = 10
+                    # チャット履歴を最新5件に制限してメモリ削減
+                    MAX_HISTORY = 5
                     history = st.session_state.chat_history_per_fund.setdefault(sheet_name, [])
 
                     # 履歴が制限を超えたら古いものを削除
