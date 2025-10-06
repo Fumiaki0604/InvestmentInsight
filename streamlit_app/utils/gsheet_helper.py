@@ -16,9 +16,13 @@ SCOPES: Iterable[str] = ("https://www.googleapis.com/auth/spreadsheets.readonly"
 
 
 def _load_service_account_info() -> dict[str, Any] | None:
-    # Try Streamlit secrets first
+    # Try Streamlit secrets first (suppress warning)
     try:
-        secret_payload = st.secrets.get("gcp_service_account")
+        if hasattr(st, 'secrets') and st.secrets._file_paths:
+            secret_payload = st.secrets.get("gcp_service_account")
+        else:
+            secret_payload = None
+
         if secret_payload:
             if isinstance(secret_payload, str):
                 try:

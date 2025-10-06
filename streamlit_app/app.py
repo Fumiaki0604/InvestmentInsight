@@ -48,9 +48,8 @@ def get_delta_display(value: float, format_type: str = "price") -> tuple[str, st
     if value == 0:
         return ("0円", "off") if format_type == "price" else ("0", "off")
     if value > 0:
-        return (f"{value:,.0f}円 ↑", "normal") if format_type == "price" else (f"{value:.1f} ↑", "normal")
-    abs_val = abs(value)
-    return (f"{abs_val:,.0f}円 ↓", "inverse") if format_type == "price" else (f"{abs_val:.1f} ↓", "inverse")
+        return (f"+{value:,.0f}円", "normal") if format_type == "price" else (f"+{value:.1f}", "normal")
+    return (f"{value:,.0f}円", "inverse") if format_type == "price" else (f"{value:.1f}", "inverse")
 
 
 st.set_page_config(page_title="投資信託ナビゲーター", page_icon="??", layout="wide")
