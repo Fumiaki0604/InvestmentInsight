@@ -16,26 +16,7 @@ SCOPES: Iterable[str] = ("https://www.googleapis.com/auth/spreadsheets.readonly"
 
 
 def _load_service_account_info() -> dict[str, Any] | None:
-    # Try Streamlit secrets first (suppress warning)
-    try:
-        if hasattr(st, 'secrets') and st.secrets._file_paths:
-            secret_payload = st.secrets.get("gcp_service_account")
-        else:
-            secret_payload = None
-
-        if secret_payload:
-            if isinstance(secret_payload, str):
-                try:
-                    return json.loads(secret_payload)
-                except json.JSONDecodeError:
-                    pass
-            try:
-                return dict(secret_payload)
-            except Exception:  # noqa: BLE001
-                pass
-    except Exception:
-        pass
-
+    # Streamlitのsecretsはスキップ（環境変数を優先）
     # Try environment variable
     raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
     if not raw_value:

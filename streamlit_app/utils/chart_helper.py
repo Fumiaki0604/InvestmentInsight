@@ -123,9 +123,9 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
     if show_indicators is None:
         show_indicators = {"移動平均線": True}
 
-    # メモリ削減：データポイント数を制限（500件以上の場合は間引き）
-    if len(df) > 500:
-        step = len(df) // 500
+    # メモリ削減：データポイント数を制限（250件以上の場合は間引き）
+    if len(df) > 250:
+        step = max(1, len(df) // 250)
         df = df.iloc[::step].copy()
 
     fig = make_subplots(
