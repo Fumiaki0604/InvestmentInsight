@@ -29,6 +29,7 @@ Thumbs.db
 *.sqlite3
 .env.local
 .credentials/
+.streamlit/secrets.toml
 
 # Reports
 coverage/
