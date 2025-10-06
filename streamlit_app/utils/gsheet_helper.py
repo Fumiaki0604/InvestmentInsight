@@ -19,17 +19,21 @@ def _load_service_account_info() -> dict[str, Any] | None:
     st.warning("🔍 DEBUG: _load_service_account_info() が呼び出されました")
 
     secret_payload = st.secrets.get("gcp_service_account")
+    st.info(f"🔍 DEBUG: st.secrets.get('gcp_service_account') の結果: {type(secret_payload).__name__} = {secret_payload is not None}")
+
     if secret_payload:
         st.info("🔍 DEBUG: st.secrets に gcp_service_account が見つかりました")
         if isinstance(secret_payload, str):
+            st.info(f"🔍 DEBUG: secret_payload は文字列型 (長さ: {len(secret_payload)})")
             try:
                 return json.loads(secret_payload)
             except json.JSONDecodeError:
                 st.warning("`gcp_service_account` secrets entry is not valid JSON. Trying structured access.")
         try:
+            st.info(f"🔍 DEBUG: dict()で変換を試みます")
             return dict(secret_payload)
-        except Exception:  # noqa: BLE001
-            st.warning("`gcp_service_account` secrets entry has unexpected format.")
+        except Exception as e:  # noqa: BLE001
+            st.warning(f"`gcp_service_account` secrets entry has unexpected format: {e}")
 
     # Try loading from Render Secret Files locations
     possible_paths = [
