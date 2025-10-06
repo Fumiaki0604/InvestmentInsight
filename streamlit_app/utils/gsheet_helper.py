@@ -88,7 +88,7 @@ def get_sheet_data(spreadsheet_id: str, sheet_name: str | None = None) -> list[s
             return None
 
         col_indices = [0, 1, 3, 8]
-        col_names = ["“ú•t", "Šî€‰¿Šz", "25“úˆÚ“®•½‹Ï", "200“úˆÚ“®•½‹Ï"]
+        col_names = ["æ—¥ä»˜", "åŸºæº–ä¾¡é¡", "25æ—¥ç§»å‹•å¹³å‡", "200æ—¥ç§»å‹•å¹³å‡"]
 
         processed_rows: list[list[Any | None]] = []
         for row in values[1:]:
@@ -108,8 +108,8 @@ def get_sheet_data(spreadsheet_id: str, sheet_name: str | None = None) -> list[s
             return None
 
         df = pd.DataFrame(processed_rows, columns=col_names)
-        df["“ú•t"] = pd.to_datetime(df["“ú•t"], format="%Y/%m/%d", errors="coerce")
-        for col in ("Šî€‰¿Šz", "25“úˆÚ“®•½‹Ï", "200“úˆÚ“®•½‹Ï"):
+        df["æ—¥ä»˜"] = pd.to_datetime(df["æ—¥ä»˜"], format="%Y/%m/%d", errors="coerce")
+        for col in ("åŸºæº–ä¾¡é¡", "25æ—¥ç§»å‹•å¹³å‡", "200æ—¥ç§»å‹•å¹³å‡"):
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col].astype(str).str.replace(",", ""), errors="coerce")
 

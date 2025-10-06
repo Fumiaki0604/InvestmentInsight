@@ -14,22 +14,22 @@ SPREADSHEET_ID = "1O3nYKIHCrDbjz1yBGrrAnq883Lgotfvvq035tC9wMVM"
 
 
 def calculate_price_changes(df: pd.DataFrame, period_days: int = 252) -> pd.Series | None:
-    if df is None or df.empty or "Šî€‰¿Šz" not in df.columns:
+    if df is None or df.empty or "åŸºæº–ä¾¡é¡" not in df.columns:
         return None
 
     data = df.copy()
-    data["Šî€‰¿Šz"] = pd.to_numeric(data["Šî€‰¿Šz"], errors="coerce")
-    data = data.dropna(subset=["Šî€‰¿Šz"])
+    data["åŸºæº–ä¾¡é¡"] = pd.to_numeric(data["åŸºæº–ä¾¡é¡"], errors="coerce")
+    data = data.dropna(subset=["åŸºæº–ä¾¡é¡"])
     if len(data) < 10:
         return None
 
     data = data.tail(min(period_days, len(data)))
-    if "“ú•t" in data.columns:
-        data["“ú•t"] = pd.to_datetime(data["“ú•t"], errors="coerce")
-        data = data.dropna(subset=["“ú•t"])
-        data = data.sort_values("“ú•t").set_index("“ú•t")
+    if "æ—¥ä»˜" in data.columns:
+        data["æ—¥ä»˜"] = pd.to_datetime(data["æ—¥ä»˜"], errors="coerce")
+        data = data.dropna(subset=["æ—¥ä»˜"])
+        data = data.sort_values("æ—¥ä»˜").set_index("æ—¥ä»˜")
 
-    returns = data["Šî€‰¿Šz"].pct_change().dropna()
+    returns = data["åŸºæº–ä¾¡é¡"].pct_change().dropna()
     return returns if len(returns) > 5 else None
 
 
@@ -41,8 +41,8 @@ def get_correlation_data(sheet_list: Iterable[str], period_days: int = 252) -> D
     for sheet_name in sheet_list:
         try:
             df = get_sheet_data(SPREADSHEET_ID, sheet_name)
-            if df is None or df.empty or "Šî€‰¿Šz" not in df.columns:
-                failed.append(f"{sheet_name}: ƒf[ƒ^•s‘«")
+            if df is None or df.empty or "åŸºæº–ä¾¡é¡" not in df.columns:
+                failed.append(f"{sheet_name}: ãƒ‡ãƒ¼ã‚¿ä¸è¶³")
                 continue
 
             price_changes = calculate_price_changes(df, period_days)
@@ -50,19 +50,19 @@ def get_correlation_data(sheet_list: Iterable[str], period_days: int = 252) -> D
                 correlation_data[sheet_name] = price_changes
                 successful += 1
             else:
-                failed.append(f"{sheet_name}: —LŒø‚È‰¿Ši•Ï“®ƒf[ƒ^‚È‚µ")
+                failed.append(f"{sheet_name}: æœ‰åŠ¹ãªä¾¡æ ¼å¤‰å‹•ãƒ‡ãƒ¼ã‚¿ãªã—")
         except Exception as exc:  # noqa: BLE001
             failed.append(f"{sheet_name}: {exc}")
 
-    st.write(f"?? ƒf[ƒ^æ“¾Œ‹‰Ê: ¬Œ÷ {successful}–Á•¿, ¸”s {len(failed)}–Á•¿")
+    st.write(f"?? ãƒ‡ãƒ¼ã‚¿å–å¾—çµæœ: æˆåŠŸ {successful}éŠ˜æŸ„, å¤±æ•— {len(failed)}éŠ˜æŸ„")
     if failed:
-        with st.expander("?? ƒf[ƒ^æ“¾ƒGƒ‰[‚ÌÚ×", expanded=False):
+        with st.expander("?? ãƒ‡ãƒ¼ã‚¿å–å¾—ã‚¨ãƒ©ãƒ¼ã®è©³ç´°", expanded=False):
             for error in failed:
                 st.caption(f"? {error}")
     if correlation_data:
-        with st.expander(f"? ¬Œ÷‚µ‚½–Á•¿ ({len(correlation_data)}Œ)", expanded=False):
+        with st.expander(f"? æˆåŠŸã—ãŸéŠ˜æŸ„ ({len(correlation_data)}ä»¶)", expanded=False):
             for fund_name, series in correlation_data.items():
-                st.caption(f"? {fund_name}: {len(series)}“ú•ª‚ÌƒŠƒ^[ƒ“ƒf[ƒ^")
+                st.caption(f"? {fund_name}: {len(series)}æ—¥åˆ†ã®ãƒªã‚¿ãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿")
 
     return correlation_data
 
@@ -104,19 +104,19 @@ def create_correlation_heatmap(correlation_matrix: pd.DataFrame, selected_fund: 
                 zmid=0,
                 zmin=-1,
                 zmax=1,
-                colorbar=dict(title="‘ŠŠÖŒW”", titleside="right"),
+                colorbar=dict(title="ç›¸é–¢ä¿‚æ•°", titleside="right"),
             )
         )
-        fig.update_layout(title="–Á•¿ŠÔ‘ŠŠÖŠÖŒWƒ}ƒgƒŠƒbƒNƒXi’¼‹ß1”NŠÔj", width=800, height=600, annotations=annotations)
+        fig.update_layout(title="éŠ˜æŸ„é–“ç›¸é–¢é–¢ä¿‚ãƒãƒˆãƒªãƒƒã‚¯ã‚¹ï¼ˆç›´è¿‘1å¹´é–“ï¼‰", width=800, height=600, annotations=annotations)
         fig.update_xaxes(tickangle=45)
         return fig
 
     fig = px.imshow(
         correlation_matrix,
-        labels=dict(x="–Á•¿", y="–Á•¿", color="‘ŠŠÖŒW”"),
+        labels=dict(x="éŠ˜æŸ„", y="éŠ˜æŸ„", color="ç›¸é–¢ä¿‚æ•°"),
         color_continuous_scale="RdBu",
         color_continuous_midpoint=0,
-        title="–Á•¿ŠÔ‘ŠŠÖŠÖŒWƒ}ƒgƒŠƒbƒNƒXi’¼‹ß1”NŠÔj",
+        title="éŠ˜æŸ„é–“ç›¸é–¢é–¢ä¿‚ãƒãƒˆãƒªãƒƒã‚¯ã‚¹ï¼ˆç›´è¿‘1å¹´é–“ï¼‰",
     )
     fig.update_layout(width=800, height=600)
     for i in range(len(correlation_matrix)):
@@ -167,9 +167,9 @@ def create_correlation_bar_chart(fund_correlations: pd.Series, selected_fund: st
         )
     )
     fig.update_layout(
-        title=f"{selected_fund}‚Æ‚Ì‘ŠŠÖŠÖŒW",
-        xaxis_title="‘ŠŠÖŒW”",
-        yaxis_title="–Á•¿",
+        title=f"{selected_fund}ã¨ã®ç›¸é–¢é–¢ä¿‚",
+        xaxis_title="ç›¸é–¢ä¿‚æ•°",
+        yaxis_title="éŠ˜æŸ„",
         height=max(400, len(fund_correlations) * 25),
         showlegend=False,
     )
@@ -188,27 +188,27 @@ def create_correlation_summary_table(fund_correlations: pd.Series, selected_fund
     summary_rows: List[Dict[str, str]] = []
     for fund_name, correlation in fund_correlations.items():
         if correlation > 0.7:
-            strength = "‹­‚¢³‚Ì‘ŠŠÖ"
-            interpretation = f"{selected_fund}‚ªã¸‚·‚éA‚±‚Ì–Á•¿‚à‹­‚­ã¸‚·‚éŒXŒü"
+            strength = "å¼·ã„æ­£ã®ç›¸é–¢"
+            interpretation = f"{selected_fund}ãŒä¸Šæ˜‡ã™ã‚‹æ™‚ã€ã“ã®éŠ˜æŸ„ã‚‚å¼·ãä¸Šæ˜‡ã™ã‚‹å‚¾å‘"
         elif correlation > 0.3:
-            strength = "’†’ö“x‚Ì³‚Ì‘ŠŠÖ"
-            interpretation = f"{selected_fund}‚ªã¸‚·‚éA‚±‚Ì–Á•¿‚à‚â‚âã¸‚·‚éŒXŒü"
+            strength = "ä¸­ç¨‹åº¦ã®æ­£ã®ç›¸é–¢"
+            interpretation = f"{selected_fund}ãŒä¸Šæ˜‡ã™ã‚‹æ™‚ã€ã“ã®éŠ˜æŸ„ã‚‚ã‚„ã‚„ä¸Šæ˜‡ã™ã‚‹å‚¾å‘"
         elif correlation > -0.3:
-            strength = "ã‚¢‘ŠŠÖ"
-            interpretation = f"{selected_fund}‚Æ‚ÌŠÖ˜A«‚Í’á‚¢"
+            strength = "å¼±ã„ç›¸é–¢"
+            interpretation = f"{selected_fund}ã¨ã®é–¢é€£æ€§ã¯ä½ã„"
         elif correlation > -0.7:
-            strength = "’†’ö“x‚Ì•‰‚Ì‘ŠŠÖ"
-            interpretation = f"{selected_fund}‚ªã¸‚·‚éA‚±‚Ì–Á•¿‚Í‚â‚â‰º—‚·‚éŒXŒü"
+            strength = "ä¸­ç¨‹åº¦ã®è² ã®ç›¸é–¢"
+            interpretation = f"{selected_fund}ãŒä¸Šæ˜‡ã™ã‚‹æ™‚ã€ã“ã®éŠ˜æŸ„ã¯ã‚„ã‚„ä¸‹è½ã™ã‚‹å‚¾å‘"
         else:
-            strength = "‹­‚¢•‰‚Ì‘ŠŠÖ"
-            interpretation = f"{selected_fund}‚ªã¸‚·‚éA‚±‚Ì–Á•¿‚Í‹­‚­‰º—‚·‚éŒXŒü"
+            strength = "å¼·ã„è² ã®ç›¸é–¢"
+            interpretation = f"{selected_fund}ãŒä¸Šæ˜‡ã™ã‚‹æ™‚ã€ã“ã®éŠ˜æŸ„ã¯å¼·ãä¸‹è½ã™ã‚‹å‚¾å‘"
 
         summary_rows.append(
             {
-                "–Á•¿": fund_name,
-                "‘ŠŠÖŒW”": f"{correlation:.3f}",
-                "‘ŠŠÖ‚Ì‹­‚³": strength,
-                "‰ğß": interpretation,
+                "éŠ˜æŸ„": fund_name,
+                "ç›¸é–¢ä¿‚æ•°": f"{correlation:.3f}",
+                "ç›¸é–¢ã®å¼·ã•": strength,
+                "è§£é‡ˆ": interpretation,
             }
         )
 

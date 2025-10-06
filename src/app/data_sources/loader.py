@@ -17,14 +17,14 @@ LOGGER = logging.getLogger(__name__)
 
 
 COLUMN_NAME_MAP = {
-    "Šî€‰¿Šz": "nav",
-    "‘O“ú·": "change_prev_day",
-    "ˆÚ“®•½‹Ïüi25“új": "sma_25",
-    "Šî€‰¿Šz-ˆÚ“®•½‹Ïü": "nav_minus_sma",
-    "ƒgƒŒƒ“ƒh": "trend",
-    "ƒgƒŒƒ“ƒhƒXƒe[ƒ^ƒX": "trend_status",
-    "ã‰º•“•\¦": "range_percent",
-    "ˆÚ“®•½‹Ïüi200“új": "sma_200",
+    "åŸºæº–ä¾¡é¡": "nav",
+    "å‰æ—¥å·®": "change_prev_day",
+    "ç§»å‹•å¹³å‡ç·šï¼ˆ25æ—¥ï¼‰": "sma_25",
+    "åŸºæº–ä¾¡é¡-ç§»å‹•å¹³å‡ç·š": "nav_minus_sma",
+    "ãƒˆãƒ¬ãƒ³ãƒ‰": "trend",
+    "ãƒˆãƒ¬ãƒ³ãƒ‰ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹": "trend_status",
+    "ä¸Šä¸‹å¹…ï¼…è¡¨ç¤º": "range_percent",
+    "ç§»å‹•å¹³å‡ç·šï¼ˆ200æ—¥ï¼‰": "sma_200",
 }
 
 PERCENT_SUFFIX = "%"

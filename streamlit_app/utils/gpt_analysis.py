@@ -8,11 +8,11 @@ from openai import OpenAI
 def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
     try:
         client = OpenAI()
-        price_info = technical_data.get("price_info", "•s–¾")
-        rsi_info = technical_data.get("rsi_info", "•s–¾")
-        macd_info = technical_data.get("macd_info", "•s–¾")
-        trend = technical_data.get("trend", "•s–¾")
-        recommendation = technical_data.get("recommendation", "•s–¾")
+        price_info = technical_data.get("price_info", "ä¸æ˜")
+        rsi_info = technical_data.get("rsi_info", "ä¸æ˜")
+        macd_info = technical_data.get("macd_info", "ä¸æ˜")
+        trend = technical_data.get("trend", "ä¸æ˜")
+        recommendation = technical_data.get("recommendation", "ä¸æ˜")
 
         ma25_value = technical_data.get("ma25_value", 0.0)
         ma200_value = technical_data.get("ma200_value", 0.0)
@@ -21,32 +21,32 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
         ma_cross_status = technical_data.get("ma_cross_status", "unknown")
 
         try:
-            current_price = float(str(price_info).split(":")[1].strip().replace("‰~", "").replace(",", ""))
+            current_price = float(str(price_info).split(":")[1].strip().replace("å††", "").replace(",", ""))
         except (IndexError, ValueError):
             current_price = 0.0
 
         prompt = f"""
-‚ ‚È‚½‚Í“Š‘M‘õ‚Ì•ªÍ‚É“Á‰»‚µ‚½‹à—ZƒAƒhƒoƒCƒU[‚Å‚·B
-ˆÈ‰º‚ÌƒeƒNƒjƒJƒ‹w•Wƒf[ƒ^‚ÉŠî‚Ã‚¢‚ÄAŠÈŒ‰‚Å‹ï‘Ì“I‚È“Š‘•ªÍ‚Æ1ƒ–ŒŒã‚Ì‰¿Ši—\‘ªƒŒƒ“ƒW‚ğ’ñ‹Ÿ‚µ‚Ä‚­‚¾‚³‚¢B
+ã‚ãªãŸã¯æŠ•è³‡ä¿¡è¨—ã®åˆ†æã«ç‰¹åŒ–ã—ãŸé‡‘èã‚¢ãƒ‰ãƒã‚¤ã‚¶ãƒ¼ã§ã™ã€‚
+ä»¥ä¸‹ã®ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«æŒ‡æ¨™ãƒ‡ãƒ¼ã‚¿ã«åŸºã¥ã„ã¦ã€ç°¡æ½”ã§å…·ä½“çš„ãªæŠ•è³‡åˆ†æã¨1ãƒ¶æœˆå¾Œã®ä¾¡æ ¼äºˆæ¸¬ãƒ¬ãƒ³ã‚¸ã‚’æä¾›ã—ã¦ãã ã•ã„ã€‚
 
-ƒeƒNƒjƒJƒ‹w•W‚Ìó‹µF
-- ‰¿Ši“®Œü: {price_info}
-- 25“úˆÚ“®•½‹Ïü: {ma25_value:,.0f}‰~
-- 200“úˆÚ“®•½‹Ïü: {ma200_value:,.0f}‰~
-- 25“úˆÚ“®•½‹Ïü‚Æ‚Ì˜¨—£—¦: {price_ma25_ratio:.1f}%
-- 200“úˆÚ“®•½‹Ïü‚Æ‚Ì˜¨—£—¦: {price_ma200_ratio:.1f}%
-- ˆÚ“®•½‹Ïü‚Ìó‘Ô: {ma_cross_status}
+ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«æŒ‡æ¨™ã®çŠ¶æ³ï¼š
+- ä¾¡æ ¼å‹•å‘: {price_info}
+- 25æ—¥ç§»å‹•å¹³å‡ç·š: {ma25_value:,.0f}å††
+- 200æ—¥ç§»å‹•å¹³å‡ç·š: {ma200_value:,.0f}å††
+- 25æ—¥ç§»å‹•å¹³å‡ç·šã¨ã®ä¹–é›¢ç‡: {price_ma25_ratio:.1f}%
+- 200æ—¥ç§»å‹•å¹³å‡ç·šã¨ã®ä¹–é›¢ç‡: {price_ma200_ratio:.1f}%
+- ç§»å‹•å¹³å‡ç·šã®çŠ¶æ…‹: {ma_cross_status}
 - RSI: {rsi_info}
 - MACD: {macd_info}
-- ‘S‘Ì“I‚ÈƒgƒŒƒ“ƒh: {trend}
-- Œ»İ‚Ì“Š‘”»’f: {recommendation}
+- å…¨ä½“çš„ãªãƒˆãƒ¬ãƒ³ãƒ‰: {trend}
+- ç¾åœ¨ã®æŠ•è³‡åˆ¤æ–­: {recommendation}
 
-ˆÈ‰º‚Ì4“_‚ÉÅ“_‚ğ“–‚Ä‚½•ªÍ‚ğ’ñ‹Ÿ‚µ‚Ä‚­‚¾‚³‚¢F
+ä»¥ä¸‹ã®4ç‚¹ã«ç„¦ç‚¹ã‚’å½“ã¦ãŸåˆ†æã‚’æä¾›ã—ã¦ãã ã•ã„ï¼š
 
-1. ˆÚ“®•½‹Ïü•ªÍ
-2. sê•ªÍ
-3. “Š‘”»’f
-4. 1ƒ–ŒŒã‚Ì‰¿Ši—\‘ªƒŒƒ“ƒWi‹ï‘Ì“I‚ÈƒŒƒ“ƒW‚Æª‹’j
+1. ç§»å‹•å¹³å‡ç·šåˆ†æ
+2. å¸‚å ´åˆ†æ
+3. æŠ•è³‡åˆ¤æ–­
+4. 1ãƒ¶æœˆå¾Œã®ä¾¡æ ¼äºˆæ¸¬ãƒ¬ãƒ³ã‚¸ï¼ˆå…·ä½“çš„ãªãƒ¬ãƒ³ã‚¸ã¨æ ¹æ‹ ï¼‰
 """
 
         response = client.chat.completions.create(
@@ -54,7 +54,7 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
             messages=[
                 {
                     "role": "system",
-                    "content": "“Š‘M‘õƒAƒiƒŠƒXƒg‚Æ‚µ‚ÄA‹ï‘Ì“I‚È”’l‚ÉŠî‚Ã‚¢‚½ŠÈŒ‰‚ÅÀ—p“I‚È•ªÍ‚ğ’ñ‹Ÿ‚µ‚Ä‚­‚¾‚³‚¢B—\‘ª‚Å‚Íª‹’‚ğ–¾¦‚µ‚Ä‚­‚¾‚³‚¢B",
+                    "content": "æŠ•è³‡ä¿¡è¨—ã‚¢ãƒŠãƒªã‚¹ãƒˆã¨ã—ã¦ã€å…·ä½“çš„ãªæ•°å€¤ã«åŸºã¥ã„ãŸç°¡æ½”ã§å®Ÿç”¨çš„ãªåˆ†æã‚’æä¾›ã—ã¦ãã ã•ã„ã€‚äºˆæ¸¬ã§ã¯æ ¹æ‹ ã‚’æ˜ç¤ºã—ã¦ãã ã•ã„ã€‚",
                 },
                 {"role": "user", "content": prompt},
             ],
@@ -69,26 +69,26 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
     except Exception as exc:  # noqa: BLE001
         detail = str(exc).lower()
         if "rate limit" in detail:
-            return "?? APIƒŠƒNƒGƒXƒg§ŒÀ‚É’B‚µ‚Ü‚µ‚½BŠÔ‚ğ‚¨‚¢‚ÄÄs‚µ‚Ä‚­‚¾‚³‚¢B"
+            return "?? APIãƒªã‚¯ã‚¨ã‚¹ãƒˆåˆ¶é™ã«é”ã—ã¾ã—ãŸã€‚æ™‚é–“ã‚’ãŠã„ã¦å†è©¦è¡Œã—ã¦ãã ã•ã„ã€‚"
         if "timeout" in detail:
-            return "?? ’ÊM‚ªƒ^ƒCƒ€ƒAƒEƒg‚µ‚Ü‚µ‚½BÄ“x‚¨‚µ‚­‚¾‚³‚¢B"
-        return "?? AI•ªÍ‚Ì¶¬’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½BƒeƒNƒjƒJƒ‹w•W‚Ì•ªÍŒ‹‰Ê‚ğ‚²QÆ‚­‚¾‚³‚¢B"
+            return "?? é€šä¿¡ãŒã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã—ã¾ã—ãŸã€‚å†åº¦ãŠè©¦ã—ãã ã•ã„ã€‚"
+        return "?? AIåˆ†æã®ç”Ÿæˆä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«æŒ‡æ¨™ã®åˆ†æçµæœã‚’ã”å‚ç…§ãã ã•ã„ã€‚"
 
 
 def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat_history: List[Dict[str, str]] | None = None) -> str:
     try:
         client = OpenAI()
         system_context = f"""
-‚ ‚È‚½‚Í“Š‘M‘õ‚Ì•ªÍ‚É“Á‰»‚µ‚½‹à—ZƒAƒhƒoƒCƒU[‚Å‚·B
-ˆÈ‰º‚ÌƒeƒNƒjƒJƒ‹w•Wƒf[ƒ^‚ÉŠî‚Ã‚¢‚ÄAƒ†[ƒU[‚Ì¿–â‚É“š‚¦‚Ä‚­‚¾‚³‚¢B
+ã‚ãªãŸã¯æŠ•è³‡ä¿¡è¨—ã®åˆ†æã«ç‰¹åŒ–ã—ãŸé‡‘èã‚¢ãƒ‰ãƒã‚¤ã‚¶ãƒ¼ã§ã™ã€‚
+ä»¥ä¸‹ã®ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«æŒ‡æ¨™ãƒ‡ãƒ¼ã‚¿ã«åŸºã¥ã„ã¦ã€ãƒ¦ãƒ¼ã‚¶ãƒ¼ã®è³ªå•ã«ç­”ãˆã¦ãã ã•ã„ã€‚
 
-ƒeƒNƒjƒJƒ‹w•W‚Ìó‹µF
-- ‰¿Ši“®Œü: {technical_data.get('price_info', '•s–¾')}
-- RSI: {technical_data.get('rsi_info', '•s–¾')}
-- MACD: {technical_data.get('macd_info', '•s–¾')}
-- ƒgƒŒƒ“ƒh: {technical_data.get('trend', '•s–¾')}
-- “Š‘”»’f: {technical_data.get('recommendation', '•s–¾')}
-- ˆÚ“®•½‹Ïü‚Ìó‘Ô: {technical_data.get('ma_cross_status', '•s–¾')}
+ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«æŒ‡æ¨™ã®çŠ¶æ³ï¼š
+- ä¾¡æ ¼å‹•å‘: {technical_data.get('price_info', 'ä¸æ˜')}
+- RSI: {technical_data.get('rsi_info', 'ä¸æ˜')}
+- MACD: {technical_data.get('macd_info', 'ä¸æ˜')}
+- ãƒˆãƒ¬ãƒ³ãƒ‰: {technical_data.get('trend', 'ä¸æ˜')}
+- æŠ•è³‡åˆ¤æ–­: {technical_data.get('recommendation', 'ä¸æ˜')}
+- ç§»å‹•å¹³å‡ç·šã®çŠ¶æ…‹: {technical_data.get('ma_cross_status', 'ä¸æ˜')}
 """
 
         messages: List[Dict[str, str]] = [{"role": "system", "content": system_context}]
@@ -108,4 +108,4 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
             raise ValueError("Empty response")
         return analysis
     except Exception:
-        return "?? ƒ`ƒƒƒbƒg‹@”\‚ÅƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B‚µ‚Î‚ç‚­ŠÔ‚ğ‚¨‚¢‚ÄÄ“x‚¨‚µ‚­‚¾‚³‚¢B"
+        return "?? ãƒãƒ£ãƒƒãƒˆæ©Ÿèƒ½ã§ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚ã—ã°ã‚‰ãæ™‚é–“ã‚’ãŠã„ã¦å†åº¦ãŠè©¦ã—ãã ã•ã„ã€‚"
