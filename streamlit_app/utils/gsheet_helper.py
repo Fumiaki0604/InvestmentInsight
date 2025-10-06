@@ -83,13 +83,17 @@ def _load_service_account_info() -> dict[str, Any] | None:
             return None
 
     candidate_path = Path(raw_value)
+    st.info(f"🔍 DEBUG: ファイルパスとしてチェック: {str(candidate_path)[:100]}...")
     if candidate_path.exists():
+        st.info(f"🔍 DEBUG: ファイルが存在しました。ファイルから読み込みます")
         try:
             raw_value = candidate_path.read_text(encoding="utf-8")
         except UnicodeDecodeError as exc:  # noqa: F841
             raise RuntimeError(
                 "`GOOGLE_SERVICE_ACCOUNT_KEY` points to a binary file. Please provide the JSON service account key."
             ) from exc
+    else:
+        st.info(f"🔍 DEBUG: ファイルは存在しません。JSON文字列として扱います")
 
     try:
         result = json.loads(raw_value)
