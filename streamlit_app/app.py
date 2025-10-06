@@ -46,18 +46,18 @@ def get_latest_valid_value(series: pd.Series, current_index: int) -> float | Non
 
 def get_delta_display(value: float, format_type: str = "price") -> tuple[str, str]:
     if value == 0:
-        return ("0‰~", "off") if format_type == "price" else ("0", "off")
+        return ("0å††", "off") if format_type == "price" else ("0", "off")
     if value > 0:
-        return (f"{value:,.0f}‰~ ª", "normal") if format_type == "price" else (f"{value:.1f} ª", "normal")
+        return (f"{value:,.0f}å†† â†‘", "normal") if format_type == "price" else (f"{value:.1f} â†‘", "normal")
     abs_val = abs(value)
-    return (f"{abs_val:,.0f}‰~ «", "inverse") if format_type == "price" else (f"{abs_val:.1f} «", "inverse")
+    return (f"{abs_val:,.0f}å†† â†“", "inverse") if format_type == "price" else (f"{abs_val:.1f} â†“", "inverse")
 
 
-st.set_page_config(page_title="“Š‘M‘õƒiƒrƒQ[ƒ^[", page_icon="??", layout="wide")
-st.title("“Š‘M‘õƒiƒrƒQ[ƒ^[")
-st.markdown("Še“Š‘M‘õ‚ÌŠî€‰¿ŠzAˆÚ“®•½‹Ïü‚Ì„ˆÚ‚ğƒOƒ‰ƒt‚Å•\¦‚µ‚Ü‚·B")
+st.set_page_config(page_title="æŠ•è³‡ä¿¡è¨—ãƒŠãƒ“ã‚²ãƒ¼ã‚¿ãƒ¼", page_icon="??", layout="wide")
+st.title("æŠ•è³‡ä¿¡è¨—ãƒŠãƒ“ã‚²ãƒ¼ã‚¿ãƒ¼")
+st.markdown("å„æŠ•è³‡ä¿¡è¨—ã®åŸºæº–ä¾¡é¡ã€ç§»å‹•å¹³å‡ç·šã®æ¨ç§»ã‚’ã‚°ãƒ©ãƒ•ã§è¡¨ç¤ºã—ã¾ã™ã€‚")
 
-tab_detail, tab_list, tab_corr = st.tabs(["Ú×•ªÍ", "–Á•¿ˆê——", "‘ŠŠÖ•ªÍ"])
+tab_detail, tab_list, tab_corr = st.tabs(["è©³ç´°åˆ†æ", "éŠ˜æŸ„ä¸€è¦§", "ç›¸é–¢åˆ†æ"])
 
 
 with tab_detail:
@@ -74,23 +74,23 @@ with tab_detail:
     def load_available_sheets() -> List[str]:
         sheets = get_sheet_data(SPREADSHEET_ID, None)
         if sheets is None:
-            st.error("ƒV[ƒg‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½BGoogle Sheets‚Ì”FØî•ñ‚ğŠm”F‚µ‚Ä‚­‚¾‚³‚¢B")
+            st.error("ã‚·ãƒ¼ãƒˆã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸã€‚Google Sheetsã®èªè¨¼æƒ…å ±ã‚’ç¢ºèªã—ã¦ãã ã•ã„ã€‚")
             return []
         return sheets  # type: ignore[return-value]
 
     available_sheets = load_available_sheets()
 
     selected_sheets = st.multiselect(
-        "•\¦‚·‚é“Š‘M‘õ‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢",
+        "è¡¨ç¤ºã™ã‚‹æŠ•è³‡ä¿¡è¨—ã‚’é¸æŠã—ã¦ãã ã•ã„",
         options=available_sheets,
         default=available_sheets[:1] if available_sheets else None,
     )
 
     col_start, col_end = st.columns(2)
     with col_start:
-        start_date = st.date_input("ŠJn“ú", datetime.datetime.now() - datetime.timedelta(days=365))
+        start_date = st.date_input("é–‹å§‹æ—¥", datetime.datetime.now() - datetime.timedelta(days=365))
     with col_end:
-        end_date = st.date_input("I—¹“ú", datetime.datetime.now())
+        end_date = st.date_input("çµ‚äº†æ—¥", datetime.datetime.now())
 
     if selected_sheets:
         for sheet_name in selected_sheets:
@@ -101,96 +101,96 @@ with tab_detail:
             try:
                 df = load_sheet_data(sheet_name)
                 if df is None or df.empty:
-                    st.warning(f"{sheet_name} ‚Ìƒf[ƒ^‚ªæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B")
+                    st.warning(f"{sheet_name} ã®ãƒ‡ãƒ¼ã‚¿ãŒå–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸã€‚")
                     continue
 
-                df["“ú•t"] = pd.to_datetime(df["“ú•t"])
+                df["æ—¥ä»˜"] = pd.to_datetime(df["æ—¥ä»˜"])
                 start_dt = pd.Timestamp(start_date.strftime("%Y-%m-%d"))
                 end_dt = pd.Timestamp(end_date.strftime("%Y-%m-%d"))
-                mask = (df["“ú•t"] >= start_dt) & (df["“ú•t"] <= end_dt)
+                mask = (df["æ—¥ä»˜"] >= start_dt) & (df["æ—¥ä»˜"] <= end_dt)
                 df = df[mask]
                 if df.empty:
-                    st.warning(f"{sheet_name} ‚Ìw’èŠúŠÔ‚Éƒf[ƒ^‚ª‚ ‚è‚Ü‚¹‚ñB")
+                    st.warning(f"{sheet_name} ã®æŒ‡å®šæœŸé–“ã«ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Šã¾ã›ã‚“ã€‚")
                     continue
 
                 chart_container = st.container()
                 with chart_container:
                     indicators = st.multiselect(
-                        "•\¦‚·‚éƒeƒNƒjƒJƒ‹w•W‚ğ‘I‘ğ",
-                        ["ˆÚ“®•½‹Ïü", "RSI", "MACD", "ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh", "DMI"],
-                        default=["ˆÚ“®•½‹Ïü", "RSI", "MACD", "ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh", "DMI"],
+                        "è¡¨ç¤ºã™ã‚‹ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«æŒ‡æ¨™ã‚’é¸æŠ",
+                        ["ç§»å‹•å¹³å‡ç·š", "RSI", "MACD", "ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰", "DMI"],
+                        default=["ç§»å‹•å¹³å‡ç·š", "RSI", "MACD", "ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰", "DMI"],
                     )
                     indicator_flags = {indicator: True for indicator in indicators}
                     fig = create_price_chart(df, indicator_flags)
                     st.plotly_chart(fig, use_container_width=True)
 
                 with st.sidebar:
-                    st.markdown("### ƒeƒNƒjƒJƒ‹w•WÚ×")
-                    current_price = df["Šî€‰¿Šz"].iloc[-1]
-                    prev_price = get_latest_valid_value(df["Šî€‰¿Šz"], -1)
+                    st.markdown("### ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«æŒ‡æ¨™è©³ç´°")
+                    current_price = df["åŸºæº–ä¾¡é¡"].iloc[-1]
+                    prev_price = get_latest_valid_value(df["åŸºæº–ä¾¡é¡"], -1)
                     price_delta = current_price - prev_price if prev_price is not None else 0
                     delta_text, delta_color = get_delta_display(price_delta)
-                    st.metric("Šî€‰¿Šz", f"{current_price:,.0f}‰~", delta=delta_text, delta_color=delta_color)
+                    st.metric("åŸºæº–ä¾¡é¡", f"{current_price:,.0f}å††", delta=delta_text, delta_color=delta_color)
 
-                    if "ˆÚ“®•½‹Ïü" in indicators:
-                        st.markdown("#### ˆÚ“®•½‹Ïü")
-                        ma25_series = df["Šî€‰¿Šz"].rolling(window=25).mean()
+                    if "ç§»å‹•å¹³å‡ç·š" in indicators:
+                        st.markdown("#### ç§»å‹•å¹³å‡ç·š")
+                        ma25_series = df["åŸºæº–ä¾¡é¡"].rolling(window=25).mean()
                         ma25 = ma25_series.iloc[-1]
                         ma25_prev = get_latest_valid_value(ma25_series, -1)
                         delta_text, delta_color = (
-                            get_delta_display(ma25 - ma25_prev) if ma25_prev is not None else ("ƒf[ƒ^‚È‚µ", "off")
+                            get_delta_display(ma25 - ma25_prev) if ma25_prev is not None else ("ãƒ‡ãƒ¼ã‚¿ãªã—", "off")
                         )
                         st.metric(
-                            f"25“úˆÚ“®•½‹Ï {get_trend_arrow(ma25, ma25_prev)}",
-                            f"{ma25:,.0f}‰~",
+                            f"25æ—¥ç§»å‹•å¹³å‡ {get_trend_arrow(ma25, ma25_prev)}",
+                            f"{ma25:,.0f}å††",
                             delta=delta_text,
                             delta_color=delta_color,
                         )
 
-                        ma200_series = df["Šî€‰¿Šz"].rolling(window=200).mean()
+                        ma200_series = df["åŸºæº–ä¾¡é¡"].rolling(window=200).mean()
                         ma200 = ma200_series.iloc[-1]
                         ma200_prev = get_latest_valid_value(ma200_series, -1)
                         delta_text, delta_color = (
-                            get_delta_display(ma200 - ma200_prev) if ma200_prev is not None else ("ƒf[ƒ^‚È‚µ", "off")
+                            get_delta_display(ma200 - ma200_prev) if ma200_prev is not None else ("ãƒ‡ãƒ¼ã‚¿ãªã—", "off")
                         )
                         st.metric(
-                            f"200“úˆÚ“®•½‹Ï {get_trend_arrow(ma200, ma200_prev)}",
-                            f"{ma200:,.0f}‰~",
+                            f"200æ—¥ç§»å‹•å¹³å‡ {get_trend_arrow(ma200, ma200_prev)}",
+                            f"{ma200:,.0f}å††",
                             delta=delta_text,
                             delta_color=delta_color,
                         )
 
-                        volatility_series = calculate_volatility(df["Šî€‰¿Šz"], window=20)
+                        volatility_series = calculate_volatility(df["åŸºæº–ä¾¡é¡"], window=20)
                         if len(volatility_series.dropna()) >= 2:
                             volatility = volatility_series.iloc[-1]
                             volatility_prev = volatility_series.iloc[-2]
                             delta_text, delta_color = get_delta_display(volatility - volatility_prev)
                             st.metric(
-                                "ƒ{ƒ‰ƒeƒBƒŠƒeƒBi20“új",
-                                f"{volatility:,.0f}‰~",
+                                "ãƒœãƒ©ãƒ†ã‚£ãƒªãƒ†ã‚£ï¼ˆ20æ—¥ï¼‰",
+                                f"{volatility:,.0f}å††",
                                 delta=delta_text,
                                 delta_color=delta_color,
                             )
                             avg_volatility = volatility_series.mean()
                             if volatility > avg_volatility * 1.5:
-                                st.warning("ƒ{ƒ‰ƒeƒBƒŠƒeƒB‚ª•½‹Ï‚æ‚è50%ˆÈã‚‚¢ó‘Ô‚Å‚·")
+                                st.warning("ãƒœãƒ©ãƒ†ã‚£ãƒªãƒ†ã‚£ãŒå¹³å‡ã‚ˆã‚Š50%ä»¥ä¸Šé«˜ã„çŠ¶æ…‹ã§ã™")
                             elif volatility < avg_volatility * 0.5:
-                                st.info("ƒ{ƒ‰ƒeƒBƒŠƒeƒB‚ª•½‹Ï‚æ‚è50%ˆÈã’á‚¢ó‘Ô‚Å‚·")
+                                st.info("ãƒœãƒ©ãƒ†ã‚£ãƒªãƒ†ã‚£ãŒå¹³å‡ã‚ˆã‚Š50%ä»¥ä¸Šä½ã„çŠ¶æ…‹ã§ã™")
                     if "RSI" in indicators:
                         st.markdown("#### RSI")
-                        rsi_series = calculate_rsi(df["Šî€‰¿Šz"])
+                        rsi_series = calculate_rsi(df["åŸºæº–ä¾¡é¡"])
                         rsi_value = rsi_series.iloc[-1]
                         rsi_prev = rsi_series.iloc[-2]
                         delta_text, delta_color = get_delta_display(rsi_value - rsi_prev, format_type="value")
                         st.metric("RSI (14)", f"{rsi_value:.1f}", delta=delta_text, delta_color=delta_color)
                         if rsi_value >= 70:
-                            st.warning("RSI‚ª70‚ğ’´‚¦‚Ä‚¨‚èA”ƒ‚í‚ê‰ß‚¬‚Ìó‘Ô‚Å‚·")
+                            st.warning("RSIãŒ70ã‚’è¶…ãˆã¦ãŠã‚Šã€è²·ã‚ã‚Œéãã®çŠ¶æ…‹ã§ã™")
                         elif rsi_value <= 30:
-                            st.warning("RSI‚ª30‚ğ‰º‰ñ‚Á‚Ä‚¨‚èA”„‚ç‚ê‰ß‚¬‚Ìó‘Ô‚Å‚·")
+                            st.warning("RSIãŒ30ã‚’ä¸‹å›ã£ã¦ãŠã‚Šã€å£²ã‚‰ã‚Œéãã®çŠ¶æ…‹ã§ã™")
 
                     if "MACD" in indicators:
                         st.markdown("#### MACD")
-                        macd_line, signal_line = calculate_macd(df["Šî€‰¿Šz"])
+                        macd_line, signal_line = calculate_macd(df["åŸºæº–ä¾¡é¡"])
                         macd_value = macd_line.iloc[-1]
                         macd_prev = macd_line.iloc[-2]
                         signal_value = signal_line.iloc[-1]
@@ -202,19 +202,19 @@ with tab_detail:
                         st.metric("MACD", f"{macd_value:.2f}", delta=delta_text, delta_color=delta_color)
 
                         delta_text, delta_color = get_delta_display(signal_value - signal_prev, format_type="value")
-                        st.metric("ƒVƒOƒiƒ‹", f"{signal_value:.2f}", delta=delta_text, delta_color=delta_color)
+                        st.metric("ã‚·ã‚°ãƒŠãƒ«", f"{signal_value:.2f}", delta=delta_text, delta_color=delta_color)
 
                         delta_text, delta_color = get_delta_display(hist_value - hist_prev, format_type="value")
-                        st.metric("MACDƒqƒXƒgƒOƒ‰ƒ€", f"{hist_value:.2f}", delta=delta_text, delta_color=delta_color)
+                        st.metric("MACDãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ ", f"{hist_value:.2f}", delta=delta_text, delta_color=delta_color)
 
                         if hist_value > 0 and hist_prev < 0:
-                            st.info("?? MACD‚ªƒVƒOƒiƒ‹‚ğãŒü‚«‚ÉƒNƒƒXi”ƒ‚¢ƒVƒOƒiƒ‹j")
+                            st.info("?? MACDãŒã‚·ã‚°ãƒŠãƒ«ã‚’ä¸Šå‘ãã«ã‚¯ãƒ­ã‚¹ï¼ˆè²·ã„ã‚·ã‚°ãƒŠãƒ«ï¼‰")
                         elif hist_value < 0 and hist_prev > 0:
-                            st.info("?? MACD‚ªƒVƒOƒiƒ‹‚ğ‰ºŒü‚«‚ÉƒNƒƒXi”„‚èƒVƒOƒiƒ‹j")
+                            st.info("?? MACDãŒã‚·ã‚°ãƒŠãƒ«ã‚’ä¸‹å‘ãã«ã‚¯ãƒ­ã‚¹ï¼ˆå£²ã‚Šã‚·ã‚°ãƒŠãƒ«ï¼‰")
 
                     if "DMI" in indicators:
                         st.markdown("#### DMI")
-                        plus_di, minus_di, adx = calculate_dmi(df["Šî€‰¿Šz"])
+                        plus_di, minus_di, adx = calculate_dmi(df["åŸºæº–ä¾¡é¡"])
                         plus_value = plus_di.iloc[-1]
                         plus_prev = plus_di.iloc[-2]
                         minus_value = minus_di.iloc[-1]
@@ -230,23 +230,23 @@ with tab_detail:
                         st.metric("ADX", f"{adx_value:.1f}", delta=delta_text, delta_color=delta_color)
 
                         if plus_value > minus_value and plus_prev <= minus_prev:
-                            st.info("?? +DI‚ª-DI‚ğ‰º‚©‚çã”²‚¯i”ƒ‚¢ƒVƒOƒiƒ‹j")
+                            st.info("?? +DIãŒ-DIã‚’ä¸‹ã‹ã‚‰ä¸ŠæŠœã‘ï¼ˆè²·ã„ã‚·ã‚°ãƒŠãƒ«ï¼‰")
                         elif plus_value < minus_value and plus_prev >= minus_prev:
-                            st.info("?? +DI‚ª-DI‚ğã‚©‚ç‰º”²‚¯i”„‚èƒVƒOƒiƒ‹j")
+                            st.info("?? +DIãŒ-DIã‚’ä¸Šã‹ã‚‰ä¸‹æŠœã‘ï¼ˆå£²ã‚Šã‚·ã‚°ãƒŠãƒ«ï¼‰")
 
                 try:
                     summary, detailed = generate_technical_summary(df)
                     if summary:
                         col_l, col_mid, col_r = st.columns([1, 3, 1])
                         with col_mid:
-                            st.markdown("### ƒeƒNƒjƒJƒ‹•ªÍƒTƒ}ƒŠ[")
+                            st.markdown("### ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«åˆ†æã‚µãƒãƒªãƒ¼")
                             for point in summary:
                                 st.markdown(point)
-                            st.markdown("### ƒeƒNƒjƒJƒ‹•ªÍÚ×‰ğà")
+                            st.markdown("### ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«åˆ†æè©³ç´°è§£èª¬")
                             for analysis in detailed:
                                 st.markdown(analysis)
                 except Exception as exc:  # noqa: BLE001
-                    st.error(f"ƒeƒNƒjƒJƒ‹•ªÍ‚Ì¶¬’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: {exc}")
+                    st.error(f"ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«åˆ†æã®ç”Ÿæˆä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: {exc}")
 
                 st.markdown(
                     """
@@ -268,37 +268,37 @@ div.stButton > button:hover {
                     unsafe_allow_html=True,
                 )
 
-                if st.button("?? AI‚É‚æ‚éÚ×•ªÍ‚ğ•\¦", key=f"ai_analysis_{sheet_name}"):
-                    with st.spinner("AI•ªÍ‚ğ¶¬’†..."):
+                if st.button("?? AIã«ã‚ˆã‚‹è©³ç´°åˆ†æã‚’è¡¨ç¤º", key=f"ai_analysis_{sheet_name}"):
+                    with st.spinner("AIåˆ†æã‚’ç”Ÿæˆä¸­..."):
                         try:
                             _, analysis_details = generate_technical_summary(df)
-                            sentiment = "‹­‹C" if analysis_details and "‹­‹CŒXŒü" in analysis_details[-1] else "ã‹C"
-                            decision = "—lqŒ©"
+                            sentiment = "å¼·æ°—" if analysis_details and "å¼·æ°—å‚¾å‘" in analysis_details[-1] else "å¼±æ°—"
+                            decision = "æ§˜å­è¦‹"
                             if analysis_details:
                                 for line in analysis_details[-1].split("\n"):
                                     if "**" in line:
                                         decision = line.replace("*", "").strip()
                                         break
 
-                            ma25_value = df["Šî€‰¿Šz"].rolling(window=25).mean().iloc[-1]
-                            ma200_value = df["Šî€‰¿Šz"].rolling(window=200).mean().iloc[-1]
-                            current_price = df["Šî€‰¿Šz"].iloc[-1]
-                            ma25_prev = df["Šî€‰¿Šz"].rolling(window=25).mean().iloc[-2]
-                            ma200_prev = df["Šî€‰¿Šz"].rolling(window=200).mean().iloc[-2]
+                            ma25_value = df["åŸºæº–ä¾¡é¡"].rolling(window=25).mean().iloc[-1]
+                            ma200_value = df["åŸºæº–ä¾¡é¡"].rolling(window=200).mean().iloc[-1]
+                            current_price = df["åŸºæº–ä¾¡é¡"].iloc[-1]
+                            ma25_prev = df["åŸºæº–ä¾¡é¡"].rolling(window=25).mean().iloc[-2]
+                            ma200_prev = df["åŸºæº–ä¾¡é¡"].rolling(window=200).mean().iloc[-2]
 
                             if ma25_value > ma200_value and ma25_prev <= ma200_prev:
-                                ma_cross_status = "ƒS[ƒ‹ƒfƒ“ƒNƒƒX"
+                                ma_cross_status = "ã‚´ãƒ¼ãƒ«ãƒ‡ãƒ³ã‚¯ãƒ­ã‚¹"
                             elif ma25_value < ma200_value and ma25_prev >= ma200_prev:
-                                ma_cross_status = "ƒfƒbƒhƒNƒƒX"
+                                ma_cross_status = "ãƒ‡ãƒƒãƒ‰ã‚¯ãƒ­ã‚¹"
                             elif ma25_value > ma200_value:
-                                ma_cross_status = "25“úü‚ª200“úü‚Ìã•û"
+                                ma_cross_status = "25æ—¥ç·šãŒ200æ—¥ç·šã®ä¸Šæ–¹"
                             else:
-                                ma_cross_status = "25“úü‚ª200“úü‚Ì‰º•û"
+                                ma_cross_status = "25æ—¥ç·šãŒ200æ—¥ç·šã®ä¸‹æ–¹"
 
                             technical_data = {
-                                "price_info": f"Šî€‰¿Šz: {current_price:,.0f}‰~",
-                                "rsi_info": f"RSI: {calculate_rsi(df['Šî€‰¿Šz']).iloc[-1]:.1f}",
-                                "macd_info": f"MACD: {calculate_macd(df['Šî€‰¿Šz'])[0].iloc[-1]:.2f}",
+                                "price_info": f"åŸºæº–ä¾¡é¡: {current_price:,.0f}å††",
+                                "rsi_info": f"RSI: {calculate_rsi(df['åŸºæº–ä¾¡é¡']).iloc[-1]:.1f}",
+                                "macd_info": f"MACD: {calculate_macd(df['åŸºæº–ä¾¡é¡'])[0].iloc[-1]:.2f}",
                                 "trend": sentiment,
                                 "recommendation": decision,
                                 "ma25_value": float(ma25_value),
@@ -312,21 +312,21 @@ div.stButton > button:hover {
 
                             ai_analysis = generate_personalized_analysis(technical_data)
                             if ai_analysis:
-                                st.markdown("### ¡AI‚É‚æ‚éÚ×•ªÍ")
+                                st.markdown("### â– AIã«ã‚ˆã‚‹è©³ç´°åˆ†æ")
                                 st.markdown(ai_analysis)
                         except Exception as exc:  # noqa: BLE001
-                            st.error(f"AI•ªÍ‚Ì¶¬’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: {exc}")
+                            st.error(f"AIåˆ†æã®ç”Ÿæˆä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: {exc}")
 
                 if st.session_state.technical_data:
-                    st.markdown("### ?? AIƒAƒiƒŠƒXƒg‚Æƒ`ƒƒƒbƒg")
-                    st.markdown(f"**{sheet_name}** ‚ÌƒeƒNƒjƒJƒ‹•ªÍ‚É‚Â‚¢‚ÄAAIƒAƒiƒŠƒXƒg‚Æ‘Î˜b‚Å‚«‚Ü‚·B")
+                    st.markdown("### ?? AIã‚¢ãƒŠãƒªã‚¹ãƒˆã¨ãƒãƒ£ãƒƒãƒˆ")
+                    st.markdown(f"**{sheet_name}** ã®ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«åˆ†æã«ã¤ã„ã¦ã€AIã‚¢ãƒŠãƒªã‚¹ãƒˆã¨å¯¾è©±ã§ãã¾ã™ã€‚")
 
                     history = st.session_state.chat_history_per_fund.setdefault(sheet_name, [])
                     for message in history:
                         if message["role"] == "user":
-                            st.markdown(f"**?? ‚ ‚È‚½**: {message['content']}")
+                            st.markdown(f"**?? ã‚ãªãŸ**: {message['content']}")
                         else:
-                            st.markdown(f"**?? AIƒAƒiƒŠƒXƒg**: {message['content']}")
+                            st.markdown(f"**?? AIã‚¢ãƒŠãƒªã‚¹ãƒˆ**: {message['content']}")
 
                     st.session_state.setdefault("chat_input_value", "")
                     st.session_state.setdefault("processing_message", False)
@@ -347,20 +347,20 @@ div.stButton > button:hover {
                         st.session_state.processing_message = False
 
                     st.text_input(
-                        "AIƒAƒiƒŠƒXƒg‚É¿–â‚·‚éi—áFuRSI‚ª70‚ğ’´‚¦‚Ä‚¢‚Ü‚·‚ªA‚Ç‚¤”»’f‚·‚×‚«‚Å‚·‚©Hvj",
+                        "AIã‚¢ãƒŠãƒªã‚¹ãƒˆã«è³ªå•ã™ã‚‹ï¼ˆä¾‹ï¼šã€ŒRSIãŒ70ã‚’è¶…ãˆã¦ã„ã¾ã™ãŒã€ã©ã†åˆ¤æ–­ã™ã¹ãã§ã™ã‹ï¼Ÿã€ï¼‰",
                         key="chat_input_value",
                         on_change=submit_message,
                     )
-                    if st.button("‘—M", disabled=st.session_state.processing_message, key=f"chat_send_{sheet_name}"):
+                    if st.button("é€ä¿¡", disabled=st.session_state.processing_message, key=f"chat_send_{sheet_name}"):
                         if not st.session_state.processing_message:
                             submit_message()
             except Exception as exc:  # noqa: BLE001
-                st.error(f"ƒf[ƒ^‚Ì“Ç‚İ‚İ’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: {exc}")
+                st.error(f"ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: {exc}")
     else:
-        st.info("•\¦‚·‚é“Š‘M‘õ‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢B")
+        st.info("è¡¨ç¤ºã™ã‚‹æŠ•è³‡ä¿¡è¨—ã‚’é¸æŠã—ã¦ãã ã•ã„ã€‚")
 with tab_list:
-    st.markdown("### ?? ‘S–Á•¿ˆê——")
-    st.markdown("“o˜^‚³‚ê‚Ä‚¢‚é‘S–Á•¿‚ÌŒ»İ‚Ìó‹µ‚ğˆê——‚ÅŠm”F‚Å‚«‚Ü‚·B")
+    st.markdown("### ?? å…¨éŠ˜æŸ„ä¸€è¦§")
+    st.markdown("ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹å…¨éŠ˜æŸ„ã®ç¾åœ¨ã®çŠ¶æ³ã‚’ä¸€è¦§ã§ç¢ºèªã§ãã¾ã™ã€‚")
 
     def get_cache_key() -> str:
         now = datetime.datetime.now()
@@ -372,16 +372,16 @@ with tab_list:
         try:
             df = get_sheet_data(SPREADSHEET_ID, sheet_name)
             if df is None or df.empty:
-                return "ƒf[ƒ^‚È‚µ"
+                return "ãƒ‡ãƒ¼ã‚¿ãªã—"
             _, detailed = generate_technical_summary(df)
             conclusion = detailed[-1] if detailed else ""
-            if "”ƒ‚¢„§" in conclusion:
-                return "”ƒ‚¢„§"
-            if "”„‚è„§" in conclusion:
-                return "”„‚è„§"
-            return "—lqŒ©"
+            if "è²·ã„æ¨å¥¨" in conclusion:
+                return "è²·ã„æ¨å¥¨"
+            if "å£²ã‚Šæ¨å¥¨" in conclusion:
+                return "å£²ã‚Šæ¨å¥¨"
+            return "æ§˜å­è¦‹"
         except Exception:
-            return "•ªÍƒGƒ‰["
+            return "åˆ†æã‚¨ãƒ©ãƒ¼"
 
     @st.cache_data(ttl=86400)
     def get_fund_summary(sheet_name: str, cache_key: str) -> Dict[str, str]:
@@ -389,37 +389,37 @@ with tab_list:
             df = get_sheet_data(SPREADSHEET_ID, sheet_name)
             if df is None or df.empty:
                 return {
-                    "–Á•¿–¼": sheet_name,
-                    "ƒXƒe[ƒ^ƒX": "ƒf[ƒ^‚È‚µ",
-                    "Šî€‰¿Šz": "-",
-                    "‘O“ú”ä": "-",
-                    "25“úˆÚ“®•½‹Ï": "-",
-                    "200“úˆÚ“®•½‹Ï": "-",
+                    "éŠ˜æŸ„å": sheet_name,
+                    "ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹": "ãƒ‡ãƒ¼ã‚¿ãªã—",
+                    "åŸºæº–ä¾¡é¡": "-",
+                    "å‰æ—¥æ¯”": "-",
+                    "25æ—¥ç§»å‹•å¹³å‡": "-",
+                    "200æ—¥ç§»å‹•å¹³å‡": "-",
                 }
 
-            latest_price = df["Šî€‰¿Šz"].iloc[-1]
-            previous_price = df["Šî€‰¿Šz"].iloc[-2] if len(df) > 1 else latest_price
+            latest_price = df["åŸºæº–ä¾¡é¡"].iloc[-1]
+            previous_price = df["åŸºæº–ä¾¡é¡"].iloc[-2] if len(df) > 1 else latest_price
             price_change = latest_price - previous_price
-            ma25_series = df["Šî€‰¿Šz"].rolling(window=25).mean()
-            ma200_series = df["Šî€‰¿Šz"].rolling(window=200).mean()
+            ma25_series = df["åŸºæº–ä¾¡é¡"].rolling(window=25).mean()
+            ma200_series = df["åŸºæº–ä¾¡é¡"].rolling(window=200).mean()
             status = get_fund_status(sheet_name, cache_key)
 
             return {
-                "–Á•¿–¼": sheet_name,
-                "ƒXƒe[ƒ^ƒX": status,
-                "Šî€‰¿Šz": f"{latest_price:,.0f}‰~",
-                "‘O“ú”ä": f"{price_change:+.0f}‰~" if price_change != 0 else "0‰~",
-                "25“úˆÚ“®•½‹Ï": f"{ma25_series.iloc[-1]:,.0f}‰~" if len(ma25_series.dropna()) else "-",
-                "200“úˆÚ“®•½‹Ï": f"{ma200_series.iloc[-1]:,.0f}‰~" if len(ma200_series.dropna()) else "-",
+                "éŠ˜æŸ„å": sheet_name,
+                "ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹": status,
+                "åŸºæº–ä¾¡é¡": f"{latest_price:,.0f}å††",
+                "å‰æ—¥æ¯”": f"{price_change:+.0f}å††" if price_change != 0 else "0å††",
+                "25æ—¥ç§»å‹•å¹³å‡": f"{ma25_series.iloc[-1]:,.0f}å††" if len(ma25_series.dropna()) else "-",
+                "200æ—¥ç§»å‹•å¹³å‡": f"{ma200_series.iloc[-1]:,.0f}å††" if len(ma200_series.dropna()) else "-",
             }
         except Exception:
             return {
-                "–Á•¿–¼": sheet_name,
-                "ƒXƒe[ƒ^ƒX": "ƒGƒ‰[",
-                "Šî€‰¿Šz": "-",
-                "‘O“ú”ä": "-",
-                "25“úˆÚ“®•½‹Ï": "-",
-                "200“úˆÚ“®•½‹Ï": "-",
+                "éŠ˜æŸ„å": sheet_name,
+                "ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹": "ã‚¨ãƒ©ãƒ¼",
+                "åŸºæº–ä¾¡é¡": "-",
+                "å‰æ—¥æ¯”": "-",
+                "25æ—¥ç§»å‹•å¹³å‡": "-",
+                "200æ—¥ç§»å‹•å¹³å‡": "-",
             }
 
     @st.cache_data(ttl=86400)
@@ -437,22 +437,22 @@ with tab_list:
 
         col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
         with col2:
-            st.caption(f"Ÿ‰ñXV—\’è: {next_update.strftime('%m/%d %H:%M')}")
+            st.caption(f"æ¬¡å›æ›´æ–°äºˆå®š: {next_update.strftime('%m/%d %H:%M')}")
         with col3:
             notifier = SlackNotifier()
-            st.caption("?? Slack’Ê’m: —LŒø" if notifier.is_configured() else "?? Slack’Ê’m: –³Œø")
+            st.caption("?? Slacké€šçŸ¥: æœ‰åŠ¹" if notifier.is_configured() else "?? Slacké€šçŸ¥: ç„¡åŠ¹")
         with col4:
             c4a, c4b = st.columns(2)
             with c4a:
-                if st.button("’Ê’mƒeƒXƒg"):
+                if st.button("é€šçŸ¥ãƒ†ã‚¹ãƒˆ"):
                     st.session_state.test_slack = True
             with c4b:
-                if st.button("•ÏXƒVƒ~ƒ…ƒŒ[ƒg"):
+                if st.button("å¤‰æ›´ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ãƒˆ"):
                     st.session_state.simulate_change = True
 
         session_key = f"fund_data_loaded_{cache_key}"
         if session_key not in st.session_state:
-            with st.spinner("ƒf[ƒ^‚ğ“Ç‚İ‚İ’†... (–ˆ’©8‚É©“®XV)"):
+            with st.spinner("ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã¿ä¸­... (æ¯æœ8æ™‚ã«è‡ªå‹•æ›´æ–°)"):
                 fund_data = get_all_fund_data(available_sheets, cache_key)
                 notifier = SlackNotifier()
                 if notifier.is_configured():
@@ -462,15 +462,15 @@ with tab_list:
                         if status_changes:
                             sent = notifier.send_multiple_notifications(status_changes)
                             if sent:
-                                st.success(f"?? {sent}Œ‚Ì“Š‘„§•ÏX‚ğSlack‚É’Ê’m‚µ‚Ü‚µ‚½")
+                                st.success(f"?? {sent}ä»¶ã®æŠ•è³‡æ¨å¥¨å¤‰æ›´ã‚’Slackã«é€šçŸ¥ã—ã¾ã—ãŸ")
                         save_fund_status(fund_data, str(STORAGE_PATH))
                     except Exception as exc:  # noqa: BLE001
-                        st.warning(f"Slack’Ê’mˆ—‚ÅƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: {exc}")
+                        st.warning(f"Slacké€šçŸ¥å‡¦ç†ã§ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: {exc}")
                 st.session_state[session_key] = True
-                st.success("ƒf[ƒ^‚ğ“Ç‚İ‚İ‚Ü‚µ‚½i—‚’©8‚Ü‚Å‚‘¬•\¦‚³‚ê‚Ü‚·j")
+                st.success("ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã¿ã¾ã—ãŸï¼ˆç¿Œæœ8æ™‚ã¾ã§é«˜é€Ÿè¡¨ç¤ºã•ã‚Œã¾ã™ï¼‰")
         else:
             fund_data = get_all_fund_data(available_sheets, cache_key)
-            st.info("?? ƒLƒƒƒbƒVƒ…‚©‚çƒf[ƒ^‚ğ•\¦’†i‚‘¬•\¦j")
+            st.info("?? ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ã‚’è¡¨ç¤ºä¸­ï¼ˆé«˜é€Ÿè¡¨ç¤ºï¼‰")
 
         if st.session_state.get("test_slack"):
             notifier = SlackNotifier()
@@ -482,41 +482,41 @@ with tab_list:
                     test_funds = random.sample(fund_data, num_test)
                     test_changes = [
                         {
-                            "fund_name": fund["–Á•¿–¼"],
-                            "old_status": "—lqŒ©",
-                            "new_status": "”ƒ‚¢„§",
-                            "price": fund["Šî€‰¿Šz"],
-                            "price_change": fund["‘O“ú”ä"],
+                            "fund_name": fund["éŠ˜æŸ„å"],
+                            "old_status": "æ§˜å­è¦‹",
+                            "new_status": "è²·ã„æ¨å¥¨",
+                            "price": fund["åŸºæº–ä¾¡é¡"],
+                            "price_change": fund["å‰æ—¥æ¯”"],
                         }
                         for fund in test_funds
                     ]
                 else:
                     test_changes = [
                         {
-                            "fund_name": "ƒeƒXƒg“Š‘M‘õ",
-                            "old_status": "—lqŒ©",
-                            "new_status": "”ƒ‚¢„§",
-                            "price": "10,000‰~",
-                            "price_change": "+50‰~",
+                            "fund_name": "ãƒ†ã‚¹ãƒˆæŠ•è³‡ä¿¡è¨—",
+                            "old_status": "æ§˜å­è¦‹",
+                            "new_status": "è²·ã„æ¨å¥¨",
+                            "price": "10,000å††",
+                            "price_change": "+50å††",
                         }
                     ]
                 try:
-                    with st.spinner("Slack‚ÉƒeƒXƒg’Ê’m‚ğ‘—M’†..."):
+                    with st.spinner("Slackã«ãƒ†ã‚¹ãƒˆé€šçŸ¥ã‚’é€ä¿¡ä¸­..."):
                         sent = notifier.send_multiple_notifications(test_changes)
                     if sent:
-                        st.success(f"?? {sent}Œ‚ÌƒeƒXƒg’Ê’m‚ğSlack‚É‘—M‚µ‚Ü‚µ‚½I")
-                        with st.expander("‘—M“à—e‚ÌÚ×"):
+                        st.success(f"?? {sent}ä»¶ã®ãƒ†ã‚¹ãƒˆé€šçŸ¥ã‚’Slackã«é€ä¿¡ã—ã¾ã—ãŸï¼")
+                        with st.expander("é€ä¿¡å†…å®¹ã®è©³ç´°"):
                             for change in test_changes:
                                 st.write(f"**{change['fund_name']}**")
-                                st.write(f"ƒXƒe[ƒ^ƒX•ÏX: {change['old_status']} ¨ {change['new_status']}")
-                                st.write(f"Œ»İ‰¿Ši: {change['price']} ({change['price_change']})")
+                                st.write(f"ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹å¤‰æ›´: {change['old_status']} â†’ {change['new_status']}")
+                                st.write(f"ç¾åœ¨ä¾¡æ ¼: {change['price']} ({change['price_change']})")
                                 st.write("---")
                     else:
-                        st.error("?? Slack’Ê’m‚Ì‘—M‚É¸”s‚µ‚Ü‚µ‚½")
+                        st.error("?? Slacké€šçŸ¥ã®é€ä¿¡ã«å¤±æ•—ã—ã¾ã—ãŸ")
                 except Exception as exc:  # noqa: BLE001
-                    st.error(f"?? Slack’Ê’mƒGƒ‰[: {exc}")
+                    st.error(f"?? Slacké€šçŸ¥ã‚¨ãƒ©ãƒ¼: {exc}")
             else:
-                st.error("?? SLACK_WEBHOOK_URL‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ")
+                st.error("?? SLACK_WEBHOOK_URLãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“")
             st.session_state.test_slack = False
         if st.session_state.get("simulate_change"):
             notifier = SlackNotifier()
@@ -529,77 +529,77 @@ with tab_list:
                     indices = random.sample(range(len(modified)), min(2, len(modified))) if modified else []
                     for idx in indices:
                         fund = modified[idx]
-                        if fund["ƒXƒe[ƒ^ƒX"] != "”ƒ‚¢„§":
-                            fund["ƒXƒe[ƒ^ƒX"] = "”ƒ‚¢„§"
+                        if fund["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"] != "è²·ã„æ¨å¥¨":
+                            fund["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"] = "è²·ã„æ¨å¥¨"
                     status_changes = check_status_changes(previous_status, modified)
                     if status_changes:
-                        with st.spinner("•ÏX‚ğŒŸo‚µ‚ÄSlack’Ê’m‚ğ‘—M’†..."):
+                        with st.spinner("å¤‰æ›´ã‚’æ¤œå‡ºã—ã¦Slacké€šçŸ¥ã‚’é€ä¿¡ä¸­..."):
                             sent = notifier.send_multiple_notifications(status_changes)
                         if sent:
-                            st.success(f"?? {sent}Œ‚ÌƒXƒe[ƒ^ƒX•ÏX‚ğSlack‚É’Ê’m‚µ‚Ü‚µ‚½I")
-                            with st.expander("ŒŸo‚³‚ê‚½•ÏX"):
+                            st.success(f"?? {sent}ä»¶ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹å¤‰æ›´ã‚’Slackã«é€šçŸ¥ã—ã¾ã—ãŸï¼")
+                            with st.expander("æ¤œå‡ºã•ã‚ŒãŸå¤‰æ›´"):
                                 for change in status_changes:
                                     st.write(f"**{change['fund_name']}**")
-                                    st.write(f"ƒXƒe[ƒ^ƒX•ÏX: {change['old_status']} ¨ {change['new_status']}")
-                                    st.write(f"Œ»İ‰¿Ši: {change['price']} ({change['price_change']})")
+                                    st.write(f"ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹å¤‰æ›´: {change['old_status']} â†’ {change['new_status']}")
+                                    st.write(f"ç¾åœ¨ä¾¡æ ¼: {change['price']} ({change['price_change']})")
                                     st.write("---")
                         else:
-                            st.error("?? Slack’Ê’m‚Ì‘—M‚É¸”s‚µ‚Ü‚µ‚½")
+                            st.error("?? Slacké€šçŸ¥ã®é€ä¿¡ã«å¤±æ•—ã—ã¾ã—ãŸ")
                     else:
-                        st.info("?? •ÏX‰Â”\‚Èƒtƒ@ƒ“ƒh‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½")
+                        st.info("?? å¤‰æ›´å¯èƒ½ãªãƒ•ã‚¡ãƒ³ãƒ‰ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ")
                 except Exception as exc:  # noqa: BLE001
-                    st.error(f"?? ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“ƒGƒ‰[: {exc}")
+                    st.error(f"?? ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã‚¨ãƒ©ãƒ¼: {exc}")
             else:
-                st.error("?? SLACK_WEBHOOK_URL‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ")
+                st.error("?? SLACK_WEBHOOK_URLãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“")
             st.session_state.simulate_change = False
 
         summary_df = pd.DataFrame(fund_data)
 
         def style_status(val: str) -> str:
-            if val == "”ƒ‚¢„§":
+            if val == "è²·ã„æ¨å¥¨":
                 return "background-color: #d4edda; color: #155724"
-            if val == "”„‚è„§":
+            if val == "å£²ã‚Šæ¨å¥¨":
                 return "background-color: #f8d7da; color: #721c24"
-            if val == "—lqŒ©":
+            if val == "æ§˜å­è¦‹":
                 return "background-color: #fff3cd; color: #856404"
             return "background-color: #f8f9fa; color: #6c757d"
 
-        st.markdown("#### –Á•¿ˆê——•\")
-        styled_df = summary_df.style.map(style_status, subset=["ƒXƒe[ƒ^ƒX"])
+        st.markdown("#### éŠ˜æŸ„ä¸€è¦§è¡¨")
+        styled_df = summary_df.style.map(style_status, subset=["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"])
         st.dataframe(styled_df, use_container_width=True, hide_index=True, height=400)
 
-        st.markdown("#### ?? ƒTƒ}ƒŠ[“Œv")
+        st.markdown("#### ?? ã‚µãƒãƒªãƒ¼çµ±è¨ˆ")
         col_a, col_b, col_c, col_d = st.columns(4)
         with col_a:
-            st.metric("”ƒ‚¢„§", len([f for f in fund_data if f["ƒXƒe[ƒ^ƒX"] == "”ƒ‚¢„§"]))
+            st.metric("è²·ã„æ¨å¥¨", len([f for f in fund_data if f["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"] == "è²·ã„æ¨å¥¨"]))
         with col_b:
-            st.metric("”„‚è„§", len([f for f in fund_data if f["ƒXƒe[ƒ^ƒX"] == "”„‚è„§"]))
+            st.metric("å£²ã‚Šæ¨å¥¨", len([f for f in fund_data if f["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"] == "å£²ã‚Šæ¨å¥¨"]))
         with col_c:
-            st.metric("—lqŒ©", len([f for f in fund_data if f["ƒXƒe[ƒ^ƒX"] == "—lqŒ©"]))
+            st.metric("æ§˜å­è¦‹", len([f for f in fund_data if f["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"] == "æ§˜å­è¦‹"]))
         with col_d:
-            st.metric("ƒf[ƒ^‚È‚µ/ƒGƒ‰[", len([f for f in fund_data if f["ƒXƒe[ƒ^ƒX"] in {"ƒf[ƒ^‚È‚µ", "ƒGƒ‰[", "•ªÍƒGƒ‰["}]))
+            st.metric("ãƒ‡ãƒ¼ã‚¿ãªã—/ã‚¨ãƒ©ãƒ¼", len([f for f in fund_data if f["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"] in {"ãƒ‡ãƒ¼ã‚¿ãªã—", "ã‚¨ãƒ©ãƒ¼", "åˆ†æã‚¨ãƒ©ãƒ¼"}]))
 
-        st.markdown("#### ?? ƒtƒBƒ‹ƒ^[")
-        status_filter = st.selectbox("ƒXƒe[ƒ^ƒX‚ÅƒtƒBƒ‹ƒ^[", ["‚·‚×‚Ä", "”ƒ‚¢„§", "”„‚è„§", "—lqŒ©", "ƒf[ƒ^‚È‚µ/ƒGƒ‰["])
-        if status_filter != "‚·‚×‚Ä":
-            if status_filter == "ƒf[ƒ^‚È‚µ/ƒGƒ‰[":
-                filtered_df = summary_df[summary_df["ƒXƒe[ƒ^ƒX"].isin(["ƒf[ƒ^‚È‚µ", "ƒGƒ‰[", "•ªÍƒGƒ‰["])]
+        st.markdown("#### ?? ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼")
+        status_filter = st.selectbox("ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã§ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼", ["ã™ã¹ã¦", "è²·ã„æ¨å¥¨", "å£²ã‚Šæ¨å¥¨", "æ§˜å­è¦‹", "ãƒ‡ãƒ¼ã‚¿ãªã—/ã‚¨ãƒ©ãƒ¼"])
+        if status_filter != "ã™ã¹ã¦":
+            if status_filter == "ãƒ‡ãƒ¼ã‚¿ãªã—/ã‚¨ãƒ©ãƒ¼":
+                filtered_df = summary_df[summary_df["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"].isin(["ãƒ‡ãƒ¼ã‚¿ãªã—", "ã‚¨ãƒ©ãƒ¼", "åˆ†æã‚¨ãƒ©ãƒ¼"])]
             else:
-                filtered_df = summary_df[summary_df["ƒXƒe[ƒ^ƒX"] == status_filter]
-            st.markdown(f"#### ƒtƒBƒ‹ƒ^[Œ‹‰Ê: {status_filter}")
-            st.dataframe(filtered_df.style.map(style_status, subset=["ƒXƒe[ƒ^ƒX"]), use_container_width=True, hide_index=True)
+                filtered_df = summary_df[summary_df["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"] == status_filter]
+            st.markdown(f"#### ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼çµæœ: {status_filter}")
+            st.dataframe(filtered_df.style.map(style_status, subset=["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"]), use_container_width=True, hide_index=True)
     else:
-        st.error("ƒV[ƒgƒf[ƒ^‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B")
+        st.error("ã‚·ãƒ¼ãƒˆãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸã€‚")
 with tab_corr:
-    st.header("?? ‘ŠŠÖ•ªÍ")
-    st.markdown("–Á•¿ŠÔ‚Ì‰¿Ši•Ï“®‘ŠŠÖŠÖŒW‚ğ•ªÍ‚µ‚Ü‚·i’¼‹ß1”NŠÔ‚Ìƒf[ƒ^‚ğg—pj")
+    st.header("?? ç›¸é–¢åˆ†æ")
+    st.markdown("éŠ˜æŸ„é–“ã®ä¾¡æ ¼å¤‰å‹•ç›¸é–¢é–¢ä¿‚ã‚’åˆ†æã—ã¾ã™ï¼ˆç›´è¿‘1å¹´é–“ã®ãƒ‡ãƒ¼ã‚¿ã‚’ä½¿ç”¨ï¼‰")
 
     try:
         available_sheets_corr = available_sheets if available_sheets else []
     except Exception:
         available_sheets_corr = []
 
-    st.caption(f"—˜—p‰Â”\‚È–Á•¿”: {len(available_sheets_corr)}–Á•¿")
+    st.caption(f"åˆ©ç”¨å¯èƒ½ãªéŠ˜æŸ„æ•°: {len(available_sheets_corr)}éŠ˜æŸ„")
 
     if available_sheets_corr:
         def get_cached_correlation_data(sheet_list: List[str], period_days: int):
@@ -611,54 +611,54 @@ with tab_corr:
 
         settings_col, result_col = st.columns([1, 3])
         with settings_col:
-            st.subheader("?? •ªÍİ’è")
+            st.subheader("?? åˆ†æè¨­å®š")
             selected_fund = st.selectbox(
-                "Ú×•ªÍ‚·‚é–Á•¿‚ğ‘I‘ğ",
-                options=["‘S‘Ìƒ}ƒgƒŠƒbƒNƒX•\¦"] + available_sheets_corr,
-                help="“Á’è‚Ì–Á•¿‚ğ‘I‘ğ‚·‚é‚ÆA‚»‚Ì–Á•¿‚Æ‘¼‚Ì–Á•¿‚Æ‚Ì‘ŠŠÖŠÖŒW‚ğ•\¦‚µ‚Ü‚·",
+                "è©³ç´°åˆ†æã™ã‚‹éŠ˜æŸ„ã‚’é¸æŠ",
+                options=["å…¨ä½“ãƒãƒˆãƒªãƒƒã‚¯ã‚¹è¡¨ç¤º"] + available_sheets_corr,
+                help="ç‰¹å®šã®éŠ˜æŸ„ã‚’é¸æŠã™ã‚‹ã¨ã€ãã®éŠ˜æŸ„ã¨ä»–ã®éŠ˜æŸ„ã¨ã®ç›¸é–¢é–¢ä¿‚ã‚’è¡¨ç¤ºã—ã¾ã™",
             )
             period_options = {
-                "1”NŠÔi252‰c‹Æ“új": 252,
-                "6ƒ–ŒŠÔi126‰c‹Æ“új": 126,
-                "3ƒ–ŒŠÔi63‰c‹Æ“új": 63,
+                "1å¹´é–“ï¼ˆ252å–¶æ¥­æ—¥ï¼‰": 252,
+                "6ãƒ¶æœˆé–“ï¼ˆ126å–¶æ¥­æ—¥ï¼‰": 126,
+                "3ãƒ¶æœˆé–“ï¼ˆ63å–¶æ¥­æ—¥ï¼‰": 63,
             }
-            selected_period = st.selectbox("•ªÍŠúŠÔ", options=list(period_options.keys()), index=0)
+            selected_period = st.selectbox("åˆ†ææœŸé–“", options=list(period_options.keys()), index=0)
             period_days = period_options[selected_period]
-            st.info(f"•ªÍŠúŠÔ: {selected_period}")
-            st.caption("‚·‚×‚Ä‚Ì‘ŠŠÖŒW”‚ğ•\¦‚µ‚Ü‚·")
+            st.info(f"åˆ†ææœŸé–“: {selected_period}")
+            st.caption("ã™ã¹ã¦ã®ç›¸é–¢ä¿‚æ•°ã‚’è¡¨ç¤ºã—ã¾ã™")
 
         with result_col:
-            st.subheader("?? ‘ŠŠÖ•ªÍŒ‹‰Ê")
-            with st.spinner(f"‘ŠŠÖ•ªÍƒf[ƒ^‚ğŒvZ’†...i{selected_period}j"):
+            st.subheader("?? ç›¸é–¢åˆ†æçµæœ")
+            with st.spinner(f"ç›¸é–¢åˆ†æãƒ‡ãƒ¼ã‚¿ã‚’è¨ˆç®—ä¸­...ï¼ˆ{selected_period}ï¼‰"):
                 correlation_data = get_cached_correlation_data(available_sheets_corr, period_days)
                 if correlation_data:
-                    st.info(f"?? ƒf[ƒ^‚ğæ“¾‚µ‚½–Á•¿”: {len(correlation_data)}–Á•¿")
-                    preview = [f"{name}: {len(series)}“ú•ª" for name, series in list(correlation_data.items())[:3]]
+                    st.info(f"?? ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã—ãŸéŠ˜æŸ„æ•°: {len(correlation_data)}éŠ˜æŸ„")
+                    preview = [f"{name}: {len(series)}æ—¥åˆ†" for name, series in list(correlation_data.items())[:3]]
                     st.caption(", ".join(preview) + ("..." if len(correlation_data) > 3 else ""))
                 else:
-                    st.error("?? ‘ŠŠÖ•ªÍƒf[ƒ^‚ªæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B")
+                    st.error("?? ç›¸é–¢åˆ†æãƒ‡ãƒ¼ã‚¿ãŒå–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸã€‚")
                 correlation_matrix = get_cached_correlation_matrix((correlation_data, period_days)) if correlation_data else None
 
             if correlation_matrix is not None and not correlation_matrix.empty:
-                if selected_fund == "‘S‘Ìƒ}ƒgƒŠƒbƒNƒX•\¦":
-                    st.markdown("#### ?? ‘S–Á•¿‘ŠŠÖƒ}ƒgƒŠƒbƒNƒX")
+                if selected_fund == "å…¨ä½“ãƒãƒˆãƒªãƒƒã‚¯ã‚¹è¡¨ç¤º":
+                    st.markdown("#### ?? å…¨éŠ˜æŸ„ç›¸é–¢ãƒãƒˆãƒªãƒƒã‚¯ã‚¹")
                     fig = create_correlation_heatmap(correlation_matrix)
                     if fig:
                         st.plotly_chart(fig, use_container_width=True)
 
-                    st.markdown("#### ?? ‘ŠŠÖ“ŒvƒTƒ}ƒŠ[")
+                    st.markdown("#### ?? ç›¸é–¢çµ±è¨ˆã‚µãƒãƒªãƒ¼")
                     c1, c2, c3, c4 = st.columns(4)
                     upper_triangle = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool)).stack()
                     with c1:
-                        st.metric("•½‹Ï‘ŠŠÖ", f"{upper_triangle.mean():.3f}")
+                        st.metric("å¹³å‡ç›¸é–¢", f"{upper_triangle.mean():.3f}")
                     with c2:
-                        st.metric("Å‘å‘ŠŠÖ", f"{upper_triangle.max():.3f}")
+                        st.metric("æœ€å¤§ç›¸é–¢", f"{upper_triangle.max():.3f}")
                     with c3:
-                        st.metric("Å¬‘ŠŠÖ", f"{upper_triangle.min():.3f}")
+                        st.metric("æœ€å°ç›¸é–¢", f"{upper_triangle.min():.3f}")
                     with c4:
-                        st.metric("‹­‘ŠŠÖƒyƒA”", len(upper_triangle[upper_triangle.abs() > 0.7]))
+                        st.metric("å¼·ç›¸é–¢ãƒšã‚¢æ•°", len(upper_triangle[upper_triangle.abs() > 0.7]))
 
-                    st.markdown("#### ?? ‘ŠŠÖ‚Ì‹­‚¢ƒyƒAiãˆÊ10ˆÊj")
+                    st.markdown("#### ?? ç›¸é–¢ã®å¼·ã„ãƒšã‚¢ï¼ˆä¸Šä½10ä½ï¼‰")
                     pairs = []
                     for i in range(len(correlation_matrix.columns)):
                         for j in range(i + 1, len(correlation_matrix.columns)):
@@ -666,22 +666,22 @@ with tab_corr:
                             fund_b = correlation_matrix.columns[j]
                             corr_val = correlation_matrix.iloc[i, j]
                             strength = (
-                                "‹­‚¢³‚Ì‘ŠŠÖ"
+                                "å¼·ã„æ­£ã®ç›¸é–¢"
                                 if corr_val > 0.7
-                                else "’†’ö“x‚Ì³‚Ì‘ŠŠÖ"
+                                else "ä¸­ç¨‹åº¦ã®æ­£ã®ç›¸é–¢"
                                 if corr_val > 0.3
-                                else "ã‚¢‘ŠŠÖ"
+                                else "å¼±ã„ç›¸é–¢"
                                 if corr_val > -0.3
-                                else "’†’ö“x‚Ì•‰‚Ì‘ŠŠÖ"
+                                else "ä¸­ç¨‹åº¦ã®è² ã®ç›¸é–¢"
                                 if corr_val > -0.7
-                                else "‹­‚¢•‰‚Ì‘ŠŠÖ"
+                                else "å¼·ã„è² ã®ç›¸é–¢"
                             )
-                            pairs.append({"–Á•¿A": fund_a, "–Á•¿B": fund_b, "‘ŠŠÖŒW”": f"{corr_val:.3f}", "‘ŠŠÖ‚Ì‹­‚³": strength})
+                            pairs.append({"éŠ˜æŸ„A": fund_a, "éŠ˜æŸ„B": fund_b, "ç›¸é–¢ä¿‚æ•°": f"{corr_val:.3f}", "ç›¸é–¢ã®å¼·ã•": strength})
                     pairs_df = pd.DataFrame(pairs)
-                    pairs_df["abs_corr"] = pairs_df["‘ŠŠÖŒW”"].astype(float).abs()
+                    pairs_df["abs_corr"] = pairs_df["ç›¸é–¢ä¿‚æ•°"].astype(float).abs()
                     st.dataframe(pairs_df.nlargest(10, "abs_corr").drop(columns=["abs_corr"]), use_container_width=True, hide_index=True)
                 else:
-                    st.markdown(f"#### ?? {selected_fund}‚Æ‚Ì‘ŠŠÖ•ªÍ")
+                    st.markdown(f"#### ?? {selected_fund}ã¨ã®ç›¸é–¢åˆ†æ")
                     fund_corr = get_fund_correlations(correlation_matrix, selected_fund)
                     if fund_corr is not None and not fund_corr.empty:
                         bar_fig = create_correlation_bar_chart(fund_corr, selected_fund)
@@ -689,45 +689,45 @@ with tab_corr:
                             st.plotly_chart(bar_fig, use_container_width=True)
                         summary_table = create_correlation_summary_table(fund_corr, selected_fund)
                         if summary_table is not None:
-                            st.markdown("#### ?? Ú×•ªÍŒ‹‰Ê")
+                            st.markdown("#### ?? è©³ç´°åˆ†æçµæœ")
                             st.dataframe(summary_table, use_container_width=True, hide_index=True)
-                        st.markdown("#### ?? “Š‘”»’f‚Ö‚ÌŠˆ—p")
+                        st.markdown("#### ?? æŠ•è³‡åˆ¤æ–­ã¸ã®æ´»ç”¨")
                         high_pos = fund_corr[fund_corr > 0.7]
                         if not high_pos.empty:
-                            st.success(f"**‹­‚¢³‚Ì‘ŠŠÖ–Á•¿**: {', '.join(high_pos.index[:3])}")
-                            st.markdown(f"¨ {selected_fund}‚Æ“¯•ûŒü‚É“®‚­‚½‚ßA•ªUŒø‰Ê‚ÍŒÀ’è“I")
+                            st.success(f"**å¼·ã„æ­£ã®ç›¸é–¢éŠ˜æŸ„**: {', '.join(high_pos.index[:3])}")
+                            st.markdown(f"â†’ {selected_fund}ã¨åŒæ–¹å‘ã«å‹•ããŸã‚ã€åˆ†æ•£åŠ¹æœã¯é™å®šçš„")
                         high_neg = fund_corr[fund_corr < -0.7]
                         if not high_neg.empty:
-                            st.error(f"**‹­‚¢•‰‚Ì‘ŠŠÖ–Á•¿**: {', '.join(high_neg.index[:3])}")
-                            st.markdown(f"¨ {selected_fund}‚Æ‹t•ûŒü‚É“®‚­‚½‚ßAƒwƒbƒWŒø‰Ê‚ªŠú‘Ò‚Å‚«‚é")
+                            st.error(f"**å¼·ã„è² ã®ç›¸é–¢éŠ˜æŸ„**: {', '.join(high_neg.index[:3])}")
+                            st.markdown(f"â†’ {selected_fund}ã¨é€†æ–¹å‘ã«å‹•ããŸã‚ã€ãƒ˜ãƒƒã‚¸åŠ¹æœãŒæœŸå¾…ã§ãã‚‹")
                         low_corr = fund_corr[fund_corr.abs() < 0.3]
                         if not low_corr.empty:
-                            st.info(f"**•ªU“Š‘Œó•â**: {', '.join(low_corr.index[:3])}")
-                            st.markdown(f"¨ {selected_fund}‚Æ‚ÌŠÖ˜A«‚ª’á‚­A•ªUŒø‰Ê‚ªŠú‘Ò‚Å‚«‚é")
+                            st.info(f"**åˆ†æ•£æŠ•è³‡å€™è£œ**: {', '.join(low_corr.index[:3])}")
+                            st.markdown(f"â†’ {selected_fund}ã¨ã®é–¢é€£æ€§ãŒä½ãã€åˆ†æ•£åŠ¹æœãŒæœŸå¾…ã§ãã‚‹")
                     else:
-                        st.error(f"{selected_fund}‚Ì‘ŠŠÖƒf[ƒ^‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB")
+                        st.error(f"{selected_fund}ã®ç›¸é–¢ãƒ‡ãƒ¼ã‚¿ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚")
             else:
-                st.error("‘ŠŠÖ•ªÍ‚É\•ª‚Èƒf[ƒ^‚ª‚ ‚è‚Ü‚¹‚ñB–Á•¿‚âŠúŠÔ‚ğŠm”F‚µ‚Ä‚­‚¾‚³‚¢B")
+                st.error("ç›¸é–¢åˆ†æã«ååˆ†ãªãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Šã¾ã›ã‚“ã€‚éŠ˜æŸ„ã‚„æœŸé–“ã‚’ç¢ºèªã—ã¦ãã ã•ã„ã€‚")
 
         st.markdown("---")
         st.markdown(
             """
-#### ?? ‘ŠŠÖ•ªÍ‚É‚Â‚¢‚Ä
-**‘ŠŠÖŒW”‚Ì‰ğßF**
-- **+0.7`+1.0**: ‹­‚¢³‚Ì‘ŠŠÖi“¯‚¶•ûŒü‚É“®‚­j
-- **+0.3`+0.7**: ’†’ö“x‚Ì³‚Ì‘ŠŠÖ
-- **-0.3`+0.3**: ã‚¢‘ŠŠÖiŠÖ˜A«‚ª’á‚¢j
-- **-0.7`-0.3**: ’†’ö“x‚Ì•‰‚Ì‘ŠŠÖ
-- **-1.0`-0.7**: ‹­‚¢•‰‚Ì‘ŠŠÖi‹t•ûŒü‚É“®‚­j
+#### ?? ç›¸é–¢åˆ†æã«ã¤ã„ã¦
+**ç›¸é–¢ä¿‚æ•°ã®è§£é‡ˆï¼š**
+- **+0.7ï½+1.0**: å¼·ã„æ­£ã®ç›¸é–¢ï¼ˆåŒã˜æ–¹å‘ã«å‹•ãï¼‰
+- **+0.3ï½+0.7**: ä¸­ç¨‹åº¦ã®æ­£ã®ç›¸é–¢
+- **-0.3ï½+0.3**: å¼±ã„ç›¸é–¢ï¼ˆé–¢é€£æ€§ãŒä½ã„ï¼‰
+- **-0.7ï½-0.3**: ä¸­ç¨‹åº¦ã®è² ã®ç›¸é–¢
+- **-1.0ï½-0.7**: å¼·ã„è² ã®ç›¸é–¢ï¼ˆé€†æ–¹å‘ã«å‹•ãï¼‰
 
-**“Š‘‚Ö‚ÌŠˆ—pF**
-- ‘ŠŠÖ‚Ì‚‚¢–Á•¿“¯m‚Í•ªU“Š‘Œø‰Ê‚ª’á‚¢
-- ‘ŠŠÖ‚Ì’á‚¢–Á•¿‚ğ‘g‚İ‡‚í‚¹‚é‚±‚Æ‚ÅƒŠƒXƒN•ªU‚ª‰Â”\
-- •‰‚Ì‘ŠŠÖ‚ª‚ ‚é–Á•¿‚ÍƒwƒbƒWŒø‰Ê‚ªŠú‘Ò‚Å‚«‚é
+**æŠ•è³‡ã¸ã®æ´»ç”¨ï¼š**
+- ç›¸é–¢ã®é«˜ã„éŠ˜æŸ„åŒå£«ã¯åˆ†æ•£æŠ•è³‡åŠ¹æœãŒä½ã„
+- ç›¸é–¢ã®ä½ã„éŠ˜æŸ„ã‚’çµ„ã¿åˆã‚ã›ã‚‹ã“ã¨ã§ãƒªã‚¹ã‚¯åˆ†æ•£ãŒå¯èƒ½
+- è² ã®ç›¸é–¢ãŒã‚ã‚‹éŠ˜æŸ„ã¯ãƒ˜ãƒƒã‚¸åŠ¹æœãŒæœŸå¾…ã§ãã‚‹
 """
         )
     else:
-        st.error("ƒV[ƒgƒf[ƒ^‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B")
+        st.error("ã‚·ãƒ¼ãƒˆãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸã€‚")
 
 st.markdown("---")
-st.markdown("ƒf[ƒ^o“T: Google Spreadsheet")
+st.markdown("ãƒ‡ãƒ¼ã‚¿å‡ºå…¸: Google Spreadsheet")

@@ -23,17 +23,17 @@ class SlackNotifier:
         price: str,
         price_change: str,
     ) -> bool:
-        if not self.is_configured() or old_status != "—lqŒ©" or new_status != "”ƒ‚¢„§":
+        if not self.is_configured() or old_status != "æ§˜å­è¦‹" or new_status != "è²·ã„æ¨å¥¨":
             return False
 
         message = {
-            "text": "?? “Š‘„§•ÏX’Ê’m",
+            "text": "?? æŠ•è³‡æ¨å¥¨å¤‰æ›´é€šçŸ¥",
             "blocks": [
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": f"*–Á•¿–¼*: {fund_name}\n*•Ï‰»*: {old_status} ¨ {new_status}\n*Šî€‰¿Šz*: {price}\n*‘O“ú”ä*: {price_change}",
+                        "text": f"*éŠ˜æŸ„å*: {fund_name}\n*å¤‰åŒ–*: {old_status} â†’ {new_status}\n*åŸºæº–ä¾¡é¡*: {price}\n*å‰æ—¥æ¯”*: {price_change}",
                     },
                 },
                 {
@@ -41,7 +41,7 @@ class SlackNotifier:
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": f"’Ê’m: {datetime.now().strftime('%Y/%m/%d %H:%M')}",
+                            "text": f"é€šçŸ¥æ™‚åˆ»: {datetime.now().strftime('%Y/%m/%d %H:%M')}",
                         }
                     ],
                 },
@@ -72,17 +72,17 @@ class SlackNotifier:
 def check_status_changes(previous_data: Dict[str, Dict[str, str]], current_data: List[Dict[str, str]]) -> List[Dict[str, str]]:
     changes: List[Dict[str, str]] = []
     for fund in current_data:
-        name = fund["–Á•¿–¼"]
-        current_status = fund["ƒXƒe[ƒ^ƒX"]
-        previous_status = previous_data.get(name, {}).get("ƒXƒe[ƒ^ƒX")
-        if previous_status == "—lqŒ©" and current_status == "”ƒ‚¢„§":
+        name = fund["éŠ˜æŸ„å"]
+        current_status = fund["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"]
+        previous_status = previous_data.get(name, {}).get("ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹")
+        if previous_status == "æ§˜å­è¦‹" and current_status == "è²·ã„æ¨å¥¨":
             changes.append(
                 {
                     "fund_name": name,
                     "old_status": previous_status,
                     "new_status": current_status,
-                    "price": fund["Šî€‰¿Šz"],
-                    "price_change": fund["‘O“ú”ä"],
+                    "price": fund["åŸºæº–ä¾¡é¡"],
+                    "price_change": fund["å‰æ—¥æ¯”"],
                 }
             )
     return changes
@@ -91,10 +91,10 @@ def check_status_changes(previous_data: Dict[str, Dict[str, str]], current_data:
 def save_fund_status(fund_data: List[Dict[str, str]], filepath: str = "previous_fund_status.json") -> bool:
     try:
         status_dict = {
-            fund["–Á•¿–¼"]: {
-                "ƒXƒe[ƒ^ƒX": fund["ƒXƒe[ƒ^ƒX"],
-                "Šî€‰¿Šz": fund["Šî€‰¿Šz"],
-                "‘O“ú”ä": fund["‘O“ú”ä"],
+            fund["éŠ˜æŸ„å"]: {
+                "ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹": fund["ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹"],
+                "åŸºæº–ä¾¡é¡": fund["åŸºæº–ä¾¡é¡"],
+                "å‰æ—¥æ¯”": fund["å‰æ—¥æ¯”"],
                 "timestamp": datetime.now().isoformat(),
             }
             for fund in fund_data

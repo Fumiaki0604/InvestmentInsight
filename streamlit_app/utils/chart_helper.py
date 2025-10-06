@@ -36,10 +36,10 @@ def get_trend_arrow(current: float | None, previous: float | None) -> str:
     if current is None or previous is None:
         return ""
     if current > previous:
-        return "ª"
+        return "â†‘"
     if current < previous:
-        return "«"
-    return "¨"
+        return "â†“"
+    return "â†’"
 
 
 def calculate_macd(data: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9) -> Tuple[pd.Series, pd.Series]:
@@ -96,14 +96,14 @@ def add_ma_highlight(fig: go.Figure, df: pd.DataFrame, ma_column: str, color: st
         return
 
     ma_value = df[ma_column].iloc[-1]
-    current_price = df["Šî€‰¿Šz"].iloc[-1]
+    current_price = df["åŸºæº–ä¾¡é¡"].iloc[-1]
 
     fig.add_hline(
         y=ma_value,
         line=dict(color=color, width=1, dash="dot"),
         row=row,
         col=col,
-        annotation=dict(text=f"{ma_column}: {ma_value:,.0f}‰~", xref="paper", x=1.02, showarrow=False, font=dict(color=color)),
+        annotation=dict(text=f"{ma_column}: {ma_value:,.0f}å††", xref="paper", x=1.02, showarrow=False, font=dict(color=color)),
     )
 
     if ma_value and abs(current_price - ma_value) / ma_value <= 0.01:
@@ -115,13 +115,13 @@ def add_ma_highlight(fig: go.Figure, df: pd.DataFrame, ma_column: str, color: st
             line_width=0,
             row=row,
             col=col,
-            annotation=dict(text="d—vƒŒƒxƒ‹", xref="paper", x=0, showarrow=False),
+            annotation=dict(text="é‡è¦ãƒ¬ãƒ™ãƒ«", xref="paper", x=0, showarrow=False),
         )
 
 
 def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None = None) -> go.Figure:
     if show_indicators is None:
-        show_indicators = {"ˆÚ“®•½‹Ïü": True}
+        show_indicators = {"ç§»å‹•å¹³å‡ç·š": True}
 
     fig = make_subplots(
         rows=5,
@@ -133,9 +133,9 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
 
     fig.add_trace(
         go.Scatter(
-            x=df["“ú•t"],
-            y=df["Šî€‰¿Šz"],
-            name="Šî€‰¿Šz",
+            x=df["æ—¥ä»˜"],
+            y=df["åŸºæº–ä¾¡é¡"],
+            name="åŸºæº–ä¾¡é¡",
             line=dict(color="#1f77b4", width=2),
             connectgaps=True,
         ),
@@ -143,42 +143,42 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
         col=1,
     )
 
-    if show_indicators.get("ˆÚ“®•½‹Ïü", False):
-        if "25“úˆÚ“®•½‹Ï" in df.columns:
+    if show_indicators.get("ç§»å‹•å¹³å‡ç·š", False):
+        if "25æ—¥ç§»å‹•å¹³å‡" in df.columns:
             fig.add_trace(
                 go.Scatter(
-                    x=df["“ú•t"],
-                    y=df["25“úˆÚ“®•½‹Ï"],
-                    name="25“úˆÚ“®•½‹Ï",
+                    x=df["æ—¥ä»˜"],
+                    y=df["25æ—¥ç§»å‹•å¹³å‡"],
+                    name="25æ—¥ç§»å‹•å¹³å‡",
                     line=dict(color="#ff7f0e", width=1.5, dash="dash"),
                     connectgaps=True,
                 ),
                 row=1,
                 col=1,
             )
-            add_ma_highlight(fig, df, "25“úˆÚ“®•½‹Ï", "#ff7f0e")
+            add_ma_highlight(fig, df, "25æ—¥ç§»å‹•å¹³å‡", "#ff7f0e")
 
-        if "200“úˆÚ“®•½‹Ï" in df.columns:
+        if "200æ—¥ç§»å‹•å¹³å‡" in df.columns:
             fig.add_trace(
                 go.Scatter(
-                    x=df["“ú•t"],
-                    y=df["200“úˆÚ“®•½‹Ï"],
-                    name="200“úˆÚ“®•½‹Ï",
+                    x=df["æ—¥ä»˜"],
+                    y=df["200æ—¥ç§»å‹•å¹³å‡"],
+                    name="200æ—¥ç§»å‹•å¹³å‡",
                     line=dict(color="#2ca02c", width=1.5, dash="dash"),
                     connectgaps=True,
                 ),
                 row=1,
                 col=1,
             )
-            add_ma_highlight(fig, df, "200“úˆÚ“®•½‹Ï", "#2ca02c")
+            add_ma_highlight(fig, df, "200æ—¥ç§»å‹•å¹³å‡", "#2ca02c")
 
-    if show_indicators.get("ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh", False):
-        middle, upper1, lower1, upper2, lower2 = calculate_bollinger_bands(df["Šî€‰¿Šz"])
+    if show_indicators.get("ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰", False):
+        middle, upper1, lower1, upper2, lower2 = calculate_bollinger_bands(df["åŸºæº–ä¾¡é¡"])
         fig.add_trace(
             go.Scatter(
-                x=df["“ú•t"],
-                y=df["Šî€‰¿Šz"],
-                name="Šî€‰¿Šz",
+                x=df["æ—¥ä»˜"],
+                y=df["åŸºæº–ä¾¡é¡"],
+                name="åŸºæº–ä¾¡é¡",
                 line=dict(color="#1f77b4", width=2),
                 showlegend=False,
                 connectgaps=True,
@@ -186,17 +186,17 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
             row=2,
             col=1,
         )
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=middle, name="BB (SMA)", line=dict(color="gray", width=1), connectgaps=True), row=2, col=1)
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=upper1, name="+1ƒĞ", line=dict(color="orange", width=1, dash="dash"), connectgaps=True), row=2, col=1)
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=lower1, name="-1ƒĞ", line=dict(color="orange", width=1, dash="dash"), connectgaps=True), row=2, col=1)
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=upper2, name="+2ƒĞ", line=dict(color="red", width=1, dash="dash"), connectgaps=True), row=2, col=1)
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=lower2, name="-2ƒĞ", line=dict(color="red", width=1, dash="dash"), connectgaps=True), row=2, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=middle, name="BB (SMA)", line=dict(color="gray", width=1), connectgaps=True), row=2, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=upper1, name="+1Ïƒ", line=dict(color="orange", width=1, dash="dash"), connectgaps=True), row=2, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=lower1, name="-1Ïƒ", line=dict(color="orange", width=1, dash="dash"), connectgaps=True), row=2, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=upper2, name="+2Ïƒ", line=dict(color="red", width=1, dash="dash"), connectgaps=True), row=2, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=lower2, name="-2Ïƒ", line=dict(color="red", width=1, dash="dash"), connectgaps=True), row=2, col=1)
 
     if show_indicators.get("RSI", False):
-        rsi = calculate_rsi(df["Šî€‰¿Šz"])
+        rsi = calculate_rsi(df["åŸºæº–ä¾¡é¡"])
         fig.add_trace(
             go.Scatter(
-                x=df["“ú•t"],
+                x=df["æ—¥ä»˜"],
                 y=rsi,
                 name="RSI (14)",
                 line=dict(color="#9467bd", width=1.5),
@@ -209,56 +209,56 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
         fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
 
     if show_indicators.get("MACD", False):
-        macd, signal = calculate_macd(df["Šî€‰¿Šz"])
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=macd, name="MACD", line=dict(color="#17becf", width=1.5), connectgaps=True), row=4, col=1)
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=signal, name="Signal", line=dict(color="#bcbd22", width=1.5), connectgaps=True), row=4, col=1)
+        macd, signal = calculate_macd(df["åŸºæº–ä¾¡é¡"])
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=macd, name="MACD", line=dict(color="#17becf", width=1.5), connectgaps=True), row=4, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=signal, name="Signal", line=dict(color="#bcbd22", width=1.5), connectgaps=True), row=4, col=1)
 
     if show_indicators.get("DMI", False):
-        plus_di, minus_di, adx = calculate_dmi(df["Šî€‰¿Šz"])
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=plus_di, name="+DI", line=dict(color="red", width=1.5), connectgaps=True), row=5, col=1)
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=minus_di, name="-DI", line=dict(color="blue", width=1.5), connectgaps=True), row=5, col=1)
-        fig.add_trace(go.Scatter(x=df["“ú•t"], y=adx, name="ADX", line=dict(color="green", width=1.5), connectgaps=True), row=5, col=1)
+        plus_di, minus_di, adx = calculate_dmi(df["åŸºæº–ä¾¡é¡"])
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=plus_di, name="+DI", line=dict(color="red", width=1.5), connectgaps=True), row=5, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=minus_di, name="-DI", line=dict(color="blue", width=1.5), connectgaps=True), row=5, col=1)
+        fig.add_trace(go.Scatter(x=df["æ—¥ä»˜"], y=adx, name="ADX", line=dict(color="green", width=1.5), connectgaps=True), row=5, col=1)
         fig.update_yaxes(title_text="DMI", range=[-5, 105], row=5, col=1)
 
     fig.update_layout(
-        title_text="ƒeƒNƒjƒJƒ‹•ªÍƒ`ƒƒ[ƒg",
+        title_text="ãƒ†ã‚¯ãƒ‹ã‚«ãƒ«åˆ†æãƒãƒ£ãƒ¼ãƒˆ",
         height=1200,
         template="plotly_white",
         showlegend=True,
         legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
     )
 
-    price_min = df["Šî€‰¿Šz"].min()
-    price_max = df["Šî€‰¿Šz"].max()
+    price_min = df["åŸºæº–ä¾¡é¡"].min()
+    price_max = df["åŸºæº–ä¾¡é¡"].max()
     price_margin = (price_max - price_min) * 0.1 if price_max != price_min else price_max * 0.1
-    fig.update_yaxes(title_text="Šî€‰¿Šz", range=[price_min - price_margin, price_max + price_margin], row=1, col=1)
+    fig.update_yaxes(title_text="åŸºæº–ä¾¡é¡", range=[price_min - price_margin, price_max + price_margin], row=1, col=1)
 
-    if show_indicators.get("ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh", False):
-        fig.update_yaxes(title_text="ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh", range=[price_min - price_margin, price_max + price_margin], row=2, col=1)
+    if show_indicators.get("ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰", False):
+        fig.update_yaxes(title_text="ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰", range=[price_min - price_margin, price_max + price_margin], row=2, col=1)
 
     if show_indicators.get("RSI", False):
         fig.update_yaxes(title_text="RSI", range=[-5, 105], row=3, col=1)
 
     if show_indicators.get("MACD", False):
-        macd, signal = calculate_macd(df["Šî€‰¿Šz"])
+        macd, signal = calculate_macd(df["åŸºæº–ä¾¡é¡"])
         macd_min = min(macd.min(), signal.min())
         macd_max = max(macd.max(), signal.max())
         macd_margin = (macd_max - macd_min) * 0.1 if macd_max != macd_min else abs(macd_max) * 0.1
         fig.update_yaxes(title_text="MACD", range=[macd_min - macd_margin, macd_max + macd_margin], row=4, col=1)
 
-    fig.update_xaxes(title_text="“ú•t", row=5, col=1)
+    fig.update_xaxes(title_text="æ—¥ä»˜", row=5, col=1)
     return fig
 
 
 def is_range_bound_market(df: pd.DataFrame, window: int = 20, threshold: float = 0.05) -> Tuple[float, Dict[str, float]]:
-    recent_data = df["Šî€‰¿Šz"].tail(window)
+    recent_data = df["åŸºæº–ä¾¡é¡"].tail(window)
     high_price = recent_data.max()
     low_price = recent_data.min()
     mid_price = (high_price + low_price) / 2
     price_range = (high_price - low_price) / mid_price if mid_price else 0
 
-    if "25“úˆÚ“®•½‹Ï" in df.columns and df["25“úˆÚ“®•½‹Ï"].dropna().shape[0] >= window:
-        ma25 = df["25“úˆÚ“®•½‹Ï"].tail(window)
+    if "25æ—¥ç§»å‹•å¹³å‡" in df.columns and df["25æ—¥ç§»å‹•å¹³å‡"].dropna().shape[0] >= window:
+        ma25 = df["25æ—¥ç§»å‹•å¹³å‡"].tail(window)
         ma_slope = (ma25.iloc[-1] - ma25.iloc[0]) / ma25.iloc[0] if ma25.iloc[0] else 0
     else:
         ma_slope = 0
@@ -288,24 +288,24 @@ def is_band_expanding(std_dev_series: pd.Series, window: int = 5) -> bool:
 
 def analyze_bollinger_bands(df: pd.DataFrame) -> BollingerAnalysis:
     window = 20
-    middle_band = df["Šî€‰¿Šz"].rolling(window=window).mean()
-    std_dev = df["Šî€‰¿Šz"].rolling(window=window).std()
+    middle_band = df["åŸºæº–ä¾¡é¡"].rolling(window=window).mean()
+    std_dev = df["åŸºæº–ä¾¡é¡"].rolling(window=window).std()
 
     upper_band_2 = middle_band + (std_dev * 2)
     lower_band_2 = middle_band - (std_dev * 2)
 
-    current_price = df["Šî€‰¿Šz"].iloc[-1]
-    prev_price = df["Šî€‰¿Šz"].iloc[-2]
+    current_price = df["åŸºæº–ä¾¡é¡"].iloc[-1]
+    prev_price = df["åŸºæº–ä¾¡é¡"].iloc[-2]
 
     expanding = is_band_expanding(std_dev)
     buy_signal = bool(current_price > upper_band_2.iloc[-1] and prev_price <= upper_band_2.iloc[-2] and expanding)
     sell_signal = bool(current_price < lower_band_2.iloc[-1] and prev_price >= lower_band_2.iloc[-2] and expanding)
 
-    position = "’†—§"
+    position = "ä¸­ç«‹"
     if current_price > upper_band_2.iloc[-1]:
-        position = "ãŒÀ“Ë”j"
+        position = "ä¸Šé™çªç ´"
     elif current_price < lower_band_2.iloc[-1]:
-        position = "‰ºŒÀ“Ë”j"
+        position = "ä¸‹é™çªç ´"
 
     return BollingerAnalysis(
         buy_signal=buy_signal,
@@ -325,142 +325,142 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
     bb = analyze_bollinger_bands(df)
     bb_signal = ""
     if bb.buy_signal:
-        bb_signal = "”ƒ‚¢ƒVƒOƒiƒ‹"
-        summary.append("Eƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh: +2ƒĞ‚ğã”²‚¯Aƒoƒ“ƒhŠg‘å’†i”ƒ‚¢j")
+        bb_signal = "è²·ã„ã‚·ã‚°ãƒŠãƒ«"
+        summary.append("ãƒ»ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰: +2Ïƒã‚’ä¸ŠæŠœã‘ã€ãƒãƒ³ãƒ‰æ‹¡å¤§ä¸­ï¼ˆè²·ã„ï¼‰")
     elif bb.sell_signal:
-        bb_signal = "”„‚èƒVƒOƒiƒ‹"
-        summary.append("Eƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh: -2ƒĞ‚ğ‰º”²‚¯Aƒoƒ“ƒhŠg‘å’†i”„‚èj")
+        bb_signal = "å£²ã‚Šã‚·ã‚°ãƒŠãƒ«"
+        summary.append("ãƒ»ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰: -2Ïƒã‚’ä¸‹æŠœã‘ã€ãƒãƒ³ãƒ‰æ‹¡å¤§ä¸­ï¼ˆå£²ã‚Šï¼‰")
     else:
-        summary.append(f"Eƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh: {bb.position}‚Ìó‘Ô")
+        summary.append(f"ãƒ»ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰: {bb.position}ã®çŠ¶æ…‹")
 
     detailed.append(
         f"""
-#### ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh•ªÍ
-- **Œ»İ‚Ìó‘Ô**: {bb.position}
-- **ƒoƒ“ƒh‚Ìó‘Ô**: {'Šg‘åŒXŒü' if bb.is_expanding else 'ûkŒXŒü'}
-- **ƒVƒOƒiƒ‹**: {bb_signal or '–¾Šm‚ÈƒVƒOƒiƒ‹‚È‚µ'}
-- **”»’fª‹’**:
-  - Šî€‰¿Šz: {df['Šî€‰¿Šz'].iloc[-1]:,.0f}‰~
-  - ’†Sü (20“úSMA): {bb.middle_band:,.0f}‰~
-  - +2ƒĞ: {bb.upper_band:,.0f}‰~
-  - -2ƒĞ: {bb.lower_band:,.0f}‰~
-- **ƒgƒŒ[ƒhí—ª**:
-  - ƒoƒ“ƒh‚ªûk‚©‚çŠg‘å‚É“]‚¶A+2ƒĞ‚ğã”²‚¯‚½ê‡‚Í”ƒ‚¢ƒVƒOƒiƒ‹
-  - ƒoƒ“ƒh‚ªûk‚©‚çŠg‘å‚É“]‚¶A-2ƒĞ‚ğ‰º”²‚¯‚½ê‡‚Í”„‚èƒVƒOƒiƒ‹
-  - ƒoƒ“ƒh“à‚Å‚Ìæˆø‚ÍT‚¦‚ß‚É‚µAƒuƒŒƒCƒNƒAƒEƒg‚ğ‘Ò‚Â
+#### ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰åˆ†æ
+- **ç¾åœ¨ã®çŠ¶æ…‹**: {bb.position}
+- **ãƒãƒ³ãƒ‰ã®çŠ¶æ…‹**: {'æ‹¡å¤§å‚¾å‘' if bb.is_expanding else 'åç¸®å‚¾å‘'}
+- **ã‚·ã‚°ãƒŠãƒ«**: {bb_signal or 'æ˜ç¢ºãªã‚·ã‚°ãƒŠãƒ«ãªã—'}
+- **åˆ¤æ–­æ ¹æ‹ **:
+  - åŸºæº–ä¾¡é¡: {df['åŸºæº–ä¾¡é¡'].iloc[-1]:,.0f}å††
+  - ä¸­å¿ƒç·š (20æ—¥SMA): {bb.middle_band:,.0f}å††
+  - +2Ïƒ: {bb.upper_band:,.0f}å††
+  - -2Ïƒ: {bb.lower_band:,.0f}å††
+- **ãƒˆãƒ¬ãƒ¼ãƒ‰æˆ¦ç•¥**:
+  - ãƒãƒ³ãƒ‰ãŒåç¸®ã‹ã‚‰æ‹¡å¤§ã«è»¢ã˜ã€+2Ïƒã‚’ä¸ŠæŠœã‘ãŸå ´åˆã¯è²·ã„ã‚·ã‚°ãƒŠãƒ«
+  - ãƒãƒ³ãƒ‰ãŒåç¸®ã‹ã‚‰æ‹¡å¤§ã«è»¢ã˜ã€-2Ïƒã‚’ä¸‹æŠœã‘ãŸå ´åˆã¯å£²ã‚Šã‚·ã‚°ãƒŠãƒ«
+  - ãƒãƒ³ãƒ‰å†…ã§ã®å–å¼•ã¯æ§ãˆã‚ã«ã—ã€ãƒ–ãƒ¬ã‚¤ã‚¯ã‚¢ã‚¦ãƒˆã‚’å¾…ã¤
 """,
     )
 
     range_score, range_info = is_range_bound_market(df)
     if range_score > 0.8:
-        range_message = "–¾Šm‚Èƒ{ƒbƒNƒX‘Šê"
+        range_message = "æ˜ç¢ºãªãƒœãƒƒã‚¯ã‚¹ç›¸å ´"
     elif range_score > 0.6:
-        range_message = "ƒ{ƒbƒNƒX‘ŠêŠñ‚è‚Ì’l“®‚«"
+        range_message = "ãƒœãƒƒã‚¯ã‚¹ç›¸å ´å¯„ã‚Šã®å€¤å‹•ã"
     elif range_score > 0.4:
-        range_message = "‚â‚â•ûŒüŠ´‚Ì‚ ‚é’l“®‚«"
+        range_message = "ã‚„ã‚„æ–¹å‘æ„Ÿã®ã‚ã‚‹å€¤å‹•ã"
     else:
-        range_message = "ˆê’è•ûŒü‚Ö‚Ì’l“®‚«"
+        range_message = "ä¸€å®šæ–¹å‘ã¸ã®å€¤å‹•ã"
 
-    summary.append(f"E{range_message}F‰¿Ši‘Ñ {range_info['low_price']:,.0f}‰~ ` {range_info['high_price']:,.0f}‰~")
+    summary.append(f"ãƒ»{range_message}ï¼šä¾¡æ ¼å¸¯ {range_info['low_price']:,.0f}å†† ï½ {range_info['high_price']:,.0f}å††")
     detailed.append(
         f"""
-#### ‰¿Ši•Ï“®ƒpƒ^[ƒ“•ªÍ
-- **{range_message}**‚ğŒ`¬‚µ‚Ä‚¢‚Ü‚·
-- ‰¿Ši‘Ñ: {range_info['low_price']:,.0f}‰~ ` {range_info['high_price']:,.0f}‰~
-- •Ï“®•: {range_info['range_width']:.1f}%
-- ƒgƒŒƒ“ƒh‚ÌŒX‚«: {range_info['ma_slope']:.1f}%
-- ƒŒƒ“ƒW‘Šê“x: {range_info['range_score']:.1f}
-- “Š‘í—ª: {'ã‰º‚Ì‰¿Ši‘Ñ‚ğ—˜—p‚µ‚½æˆø‚ğŒŸ“¢' if range_score > 0.6 else '•ûŒü«‚É‰ˆ‚Á‚½æˆø‚ğ„§'}
+#### ä¾¡æ ¼å¤‰å‹•ãƒ‘ã‚¿ãƒ¼ãƒ³åˆ†æ
+- **{range_message}**ã‚’å½¢æˆã—ã¦ã„ã¾ã™
+- ä¾¡æ ¼å¸¯: {range_info['low_price']:,.0f}å†† ï½ {range_info['high_price']:,.0f}å††
+- å¤‰å‹•å¹…: {range_info['range_width']:.1f}%
+- ãƒˆãƒ¬ãƒ³ãƒ‰ã®å‚¾ã: {range_info['ma_slope']:.1f}%
+- ãƒ¬ãƒ³ã‚¸ç›¸å ´åº¦: {range_info['range_score']:.1f}
+- æŠ•è³‡æˆ¦ç•¥: {'ä¸Šä¸‹ã®ä¾¡æ ¼å¸¯ã‚’åˆ©ç”¨ã—ãŸå–å¼•ã‚’æ¤œè¨' if range_score > 0.6 else 'æ–¹å‘æ€§ã«æ²¿ã£ãŸå–å¼•ã‚’æ¨å¥¨'}
 """,
     )
 
     current_ma25 = None
     current_ma200 = None
-    ma_status = "ƒf[ƒ^•s‘«"
-    if "25“úˆÚ“®•½‹Ï" in df.columns and "200“úˆÚ“®•½‹Ï" in df.columns:
-        ma25 = df["25“úˆÚ“®•½‹Ï"].dropna().iloc[-2:]
-        ma200 = df["200“úˆÚ“®•½‹Ï"].dropna().iloc[-2:]
+    ma_status = "ãƒ‡ãƒ¼ã‚¿ä¸è¶³"
+    if "25æ—¥ç§»å‹•å¹³å‡" in df.columns and "200æ—¥ç§»å‹•å¹³å‡" in df.columns:
+        ma25 = df["25æ—¥ç§»å‹•å¹³å‡"].dropna().iloc[-2:]
+        ma200 = df["200æ—¥ç§»å‹•å¹³å‡"].dropna().iloc[-2:]
         if len(ma25) == 2 and len(ma200) == 2:
             current_ma25 = ma25.iloc[-1]
             current_ma200 = ma200.iloc[-1]
-            price_vs_ma = df["Šî€‰¿Šz"].iloc[-1]
+            price_vs_ma = df["åŸºæº–ä¾¡é¡"].iloc[-1]
 
             if ma25.iloc[0] < ma200.iloc[0] and ma25.iloc[1] > ma200.iloc[1]:
-                ma_status = "ƒS[ƒ‹ƒfƒ“ƒNƒƒXF‹­‹C"
-                summary.append("EƒS[ƒ‹ƒfƒ“ƒNƒƒX”­¶F‹­‹C")
+                ma_status = "ã‚´ãƒ¼ãƒ«ãƒ‡ãƒ³ã‚¯ãƒ­ã‚¹ï¼šå¼·æ°—"
+                summary.append("ãƒ»ã‚´ãƒ¼ãƒ«ãƒ‡ãƒ³ã‚¯ãƒ­ã‚¹ç™ºç”Ÿï¼šå¼·æ°—")
             elif ma25.iloc[0] > ma200.iloc[0] and ma25.iloc[1] < ma200.iloc[1]:
-                ma_status = "ƒfƒbƒhƒNƒƒXFã‹C"
-                summary.append("EƒfƒbƒhƒNƒƒX”­¶Fã‹C")
+                ma_status = "ãƒ‡ãƒƒãƒ‰ã‚¯ãƒ­ã‚¹ï¼šå¼±æ°—"
+                summary.append("ãƒ»ãƒ‡ãƒƒãƒ‰ã‚¯ãƒ­ã‚¹ç™ºç”Ÿï¼šå¼±æ°—")
             elif current_ma25 > current_ma200:
-                ma_status = "ã¸ƒgƒŒƒ“ƒhŒp‘±"
-                summary.append("E25“úˆÚ“®•½‹Ïü‚ª200“úˆÚ“®•½‹Ïü‚Ìã•ûF‹­‹C")
+                ma_status = "ä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶š"
+                summary.append("ãƒ»25æ—¥ç§»å‹•å¹³å‡ç·šãŒ200æ—¥ç§»å‹•å¹³å‡ç·šã®ä¸Šæ–¹ï¼šå¼·æ°—")
             else:
-                ma_status = "‰º~ƒgƒŒƒ“ƒhŒp‘±"
-                summary.append("E25“úˆÚ“®•½‹Ïü‚ª200“úˆÚ“®•½‹Ïü‚Ì‰º•ûFã‹C")
+                ma_status = "ä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶š"
+                summary.append("ãƒ»25æ—¥ç§»å‹•å¹³å‡ç·šãŒ200æ—¥ç§»å‹•å¹³å‡ç·šã®ä¸‹æ–¹ï¼šå¼±æ°—")
 
             detailed.append(
                 f"""
-#### ˆÚ“®•½‹Ïü•ªÍ
-- **ƒgƒŒƒ“ƒhó‘Ô**: {ma_status}
-- 25“úˆÚ“®•½‹Ïü: {current_ma25:,.0f}‰~
-- 200“úˆÚ“®•½‹Ïü: {current_ma200:,.0f}‰~
-- Šî€‰¿Šz‚ÌˆÊ’u: ˆÚ“®•½‹Ïü‚©‚ç{((price_vs_ma - current_ma25) / current_ma25 * 100):.1f}%
-- ƒgƒŒƒ“ƒh‚Ì‹­‚³: {'‹­‚¢' if abs((current_ma25 - current_ma200) / current_ma200) > 0.03 else 'ã‚¢'}
+#### ç§»å‹•å¹³å‡ç·šåˆ†æ
+- **ãƒˆãƒ¬ãƒ³ãƒ‰çŠ¶æ…‹**: {ma_status}
+- 25æ—¥ç§»å‹•å¹³å‡ç·š: {current_ma25:,.0f}å††
+- 200æ—¥ç§»å‹•å¹³å‡ç·š: {current_ma200:,.0f}å††
+- åŸºæº–ä¾¡é¡ã®ä½ç½®: ç§»å‹•å¹³å‡ç·šã‹ã‚‰{((price_vs_ma - current_ma25) / current_ma25 * 100):.1f}%
+- ãƒˆãƒ¬ãƒ³ãƒ‰ã®å¼·ã•: {'å¼·ã„' if abs((current_ma25 - current_ma200) / current_ma200) > 0.03 else 'å¼±ã„'}
 """,
             )
 
-    rsi_series = calculate_rsi(df["Šî€‰¿Šz"])
+    rsi_series = calculate_rsi(df["åŸºæº–ä¾¡é¡"])
     rsi_value = float(rsi_series.iloc[-1])
     if rsi_value > 70:
-        rsi_status = "”ƒ‚í‚ê‚·‚¬"
-        summary.append(f"ERSI‚Í{rsi_value:.1f}‚ÅA”ƒ‚í‚ê‚·‚¬‚Ì…€")
+        rsi_status = "è²·ã‚ã‚Œã™ã"
+        summary.append(f"ãƒ»RSIã¯{rsi_value:.1f}ã§ã€è²·ã‚ã‚Œã™ãã®æ°´æº–")
     elif rsi_value < 30:
-        rsi_status = "”„‚ç‚ê‚·‚¬"
-        summary.append(f"ERSI‚Í{rsi_value:.1f}‚ÅA”„‚ç‚ê‚·‚¬‚Ì…€")
+        rsi_status = "å£²ã‚‰ã‚Œã™ã"
+        summary.append(f"ãƒ»RSIã¯{rsi_value:.1f}ã§ã€å£²ã‚‰ã‚Œã™ãã®æ°´æº–")
     else:
-        rsi_status = "’†—§"
-        summary.append(f"ERSI‚Í{rsi_value:.1f}‚ÅA’†—§“I‚È…€")
+        rsi_status = "ä¸­ç«‹"
+        summary.append(f"ãƒ»RSIã¯{rsi_value:.1f}ã§ã€ä¸­ç«‹çš„ãªæ°´æº–")
 
     detailed.append(
         f"""
-#### RSIi‘Š‘Î—Íw”j•ªÍ
-- Œ»İ‚ÌRSI: {rsi_value:.1f}
-- **sêó‘Ô**: {rsi_status}
-- ”»’f: {'’ZŠú“I‚È’²®‚Ì‰Â”\«‚ ‚è' if rsi_value > 70 else '’ZŠú“I‚È”½”­‚Ì‰Â”\«‚ ‚è' if rsi_value < 30 else '“K³…€‚Å„ˆÚ’†'}
+#### RSIï¼ˆç›¸å¯¾åŠ›æŒ‡æ•°ï¼‰åˆ†æ
+- ç¾åœ¨ã®RSI: {rsi_value:.1f}
+- **å¸‚å ´çŠ¶æ…‹**: {rsi_status}
+- åˆ¤æ–­: {'çŸ­æœŸçš„ãªèª¿æ•´ã®å¯èƒ½æ€§ã‚ã‚Š' if rsi_value > 70 else 'çŸ­æœŸçš„ãªåç™ºã®å¯èƒ½æ€§ã‚ã‚Š' if rsi_value < 30 else 'é©æ­£æ°´æº–ã§æ¨ç§»ä¸­'}
 """,
     )
 
-    macd_series, signal_series = calculate_macd(df["Šî€‰¿Šz"])
+    macd_series, signal_series = calculate_macd(df["åŸºæº–ä¾¡é¡"])
     latest_macd = macd_series.iloc[-1]
     latest_signal = signal_series.iloc[-1]
     prev_macd = macd_series.iloc[-2]
     prev_signal = signal_series.iloc[-2]
 
     if latest_macd > latest_signal and prev_macd <= prev_signal:
-        macd_status = "”ƒ‚¢ƒVƒOƒiƒ‹"
-        summary.append("EMACD‚ªƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚ğãŒü‚«‚ÉƒNƒƒXi”ƒ‚¢ƒVƒOƒiƒ‹j")
+        macd_status = "è²·ã„ã‚·ã‚°ãƒŠãƒ«"
+        summary.append("ãƒ»MACDãŒã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã‚’ä¸Šå‘ãã«ã‚¯ãƒ­ã‚¹ï¼ˆè²·ã„ã‚·ã‚°ãƒŠãƒ«ï¼‰")
     elif latest_macd < latest_signal and prev_macd >= prev_signal:
-        macd_status = "”„‚èƒVƒOƒiƒ‹"
-        summary.append("EMACD‚ªƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚ğ‰ºŒü‚«‚ÉƒNƒƒXi”„‚èƒVƒOƒiƒ‹j")
+        macd_status = "å£²ã‚Šã‚·ã‚°ãƒŠãƒ«"
+        summary.append("ãƒ»MACDãŒã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã‚’ä¸‹å‘ãã«ã‚¯ãƒ­ã‚¹ï¼ˆå£²ã‚Šã‚·ã‚°ãƒŠãƒ«ï¼‰")
     elif latest_macd > latest_signal:
-        macd_status = "ã¸ƒgƒŒƒ“ƒhŒp‘±"
-        summary.append("EMACD‚ÍƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚Ìã•û‚Å„ˆÚ")
+        macd_status = "ä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶š"
+        summary.append("ãƒ»MACDã¯ã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã®ä¸Šæ–¹ã§æ¨ç§»")
     else:
-        macd_status = "‰º~ƒgƒŒƒ“ƒhŒp‘±"
-        summary.append("EMACD‚ÍƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚Ì‰º•û‚Å„ˆÚ")
+        macd_status = "ä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶š"
+        summary.append("ãƒ»MACDã¯ã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã®ä¸‹æ–¹ã§æ¨ç§»")
 
     detailed.append(
         f"""
-#### MACD•ªÍ
-- **Œ»İ‚Ìó‘Ô**: {macd_status}
-- MACD’l: {latest_macd:.2f}
-- ƒVƒOƒiƒ‹’l: {latest_signal:.2f}
-- MACDƒqƒXƒgƒOƒ‰ƒ€: {(latest_macd - latest_signal):.2f}
-- ƒgƒŒƒ“ƒh‚Ì‹­‚³: {'‹­‚¢' if abs(latest_macd - latest_signal) > abs(prev_macd - prev_signal) else 'ã‚¢'}
+#### MACDåˆ†æ
+- **ç¾åœ¨ã®çŠ¶æ…‹**: {macd_status}
+- MACDå€¤: {latest_macd:.2f}
+- ã‚·ã‚°ãƒŠãƒ«å€¤: {latest_signal:.2f}
+- MACDãƒ’ã‚¹ãƒˆã‚°ãƒ©ãƒ : {(latest_macd - latest_signal):.2f}
+- ãƒˆãƒ¬ãƒ³ãƒ‰ã®å¼·ã•: {'å¼·ã„' if abs(latest_macd - latest_signal) > abs(prev_macd - prev_signal) else 'å¼±ã„'}
 """,
     )
 
-    plus_di, minus_di, adx = calculate_dmi(df["Šî€‰¿Šz"])
+    plus_di, minus_di, adx = calculate_dmi(df["åŸºæº–ä¾¡é¡"])
     current_plus = plus_di.iloc[-1]
     current_minus = minus_di.iloc[-1]
     prev_plus = plus_di.iloc[-2]
@@ -468,29 +468,29 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
     current_adx = adx.iloc[-1]
 
     if current_plus > current_minus and prev_plus <= prev_minus:
-        dmi_status = "”ƒ‚¢ƒVƒOƒiƒ‹"
-        summary.append("EDMI: +DI‚ª-DI‚ğ‰º‚©‚çã”²‚¯i”ƒ‚¢ƒVƒOƒiƒ‹j")
+        dmi_status = "è²·ã„ã‚·ã‚°ãƒŠãƒ«"
+        summary.append("ãƒ»DMI: +DIãŒ-DIã‚’ä¸‹ã‹ã‚‰ä¸ŠæŠœã‘ï¼ˆè²·ã„ã‚·ã‚°ãƒŠãƒ«ï¼‰")
     elif current_plus < current_minus and prev_plus >= prev_minus:
-        dmi_status = "”„‚èƒVƒOƒiƒ‹"
-        summary.append("EDMI: +DI‚ª-DI‚ğã‚©‚ç‰º”²‚¯i”„‚èƒVƒOƒiƒ‹j")
+        dmi_status = "å£²ã‚Šã‚·ã‚°ãƒŠãƒ«"
+        summary.append("ãƒ»DMI: +DIãŒ-DIã‚’ä¸Šã‹ã‚‰ä¸‹æŠœã‘ï¼ˆå£²ã‚Šã‚·ã‚°ãƒŠãƒ«ï¼‰")
     elif current_plus > current_minus:
-        dmi_status = "ã¸ƒgƒŒƒ“ƒh"
-        summary.append("EDMI: +DI‚ª-DI‚Ìã•ûiã¸ƒgƒŒƒ“ƒhj")
+        dmi_status = "ä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰"
+        summary.append("ãƒ»DMI: +DIãŒ-DIã®ä¸Šæ–¹ï¼ˆä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰ï¼‰")
     else:
-        dmi_status = "‰º~ƒgƒŒƒ“ƒh"
-        summary.append("EDMI: +DI‚ª-DI‚Ì‰º•ûi‰º~ƒgƒŒƒ“ƒhj")
+        dmi_status = "ä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰"
+        summary.append("ãƒ»DMI: +DIãŒ-DIã®ä¸‹æ–¹ï¼ˆä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰ï¼‰")
 
     detailed.append(
         f"""
-#### DMI•ªÍ
-- **Œ»İ‚Ìó‘Ô**: {dmi_status}
+#### DMIåˆ†æ
+- **ç¾åœ¨ã®çŠ¶æ…‹**: {dmi_status}
 - +DI: {current_plus:.1f}
 - -DI: {current_minus:.1f}
-- ADX: {current_adx:.1f}iƒgƒŒƒ“ƒh‚Ì‹­‚³j
-- **ƒgƒŒƒ“ƒh‚Ì‹­‚³**: {'‹­‚¢' if current_adx > 25 else 'ã‚¢'}
-- **ƒVƒOƒiƒ‹”»’è**:
-  - +DI‚ª-DI‚ğ‰º‚©‚çã”²‚¯‚½ê‡‚Í”ƒ‚¢ƒVƒOƒiƒ‹
-  - +DI‚ª-DI‚ğã‚©‚ç‰º”²‚¯‚½ê‡‚Í”„‚èƒVƒOƒiƒ‹
+- ADX: {current_adx:.1f}ï¼ˆãƒˆãƒ¬ãƒ³ãƒ‰ã®å¼·ã•ï¼‰
+- **ãƒˆãƒ¬ãƒ³ãƒ‰ã®å¼·ã•**: {'å¼·ã„' if current_adx > 25 else 'å¼±ã„'}
+- **ã‚·ã‚°ãƒŠãƒ«åˆ¤å®š**:
+  - +DIãŒ-DIã‚’ä¸‹ã‹ã‚‰ä¸ŠæŠœã‘ãŸå ´åˆã¯è²·ã„ã‚·ã‚°ãƒŠãƒ«
+  - +DIãŒ-DIã‚’ä¸Šã‹ã‚‰ä¸‹æŠœã‘ãŸå ´åˆã¯å£²ã‚Šã‚·ã‚°ãƒŠãƒ«
 """,
     )
 
@@ -501,62 +501,62 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
     ma_bullish = current_ma25 is not None and current_ma200 is not None and current_ma25 > current_ma200
     if current_ma25 is not None and current_ma200 is not None:
         if ma_bullish:
-            if ma_status == "ƒS[ƒ‹ƒfƒ“ƒNƒƒXF‹­‹C":
-                buy_factors.append("25“úˆÚ“®•½‹Ïü‚ª200“úˆÚ“®•½‹Ïü‚ğƒS[ƒ‹ƒfƒ“ƒNƒƒX")
+            if ma_status == "ã‚´ãƒ¼ãƒ«ãƒ‡ãƒ³ã‚¯ãƒ­ã‚¹ï¼šå¼·æ°—":
+                buy_factors.append("25æ—¥ç§»å‹•å¹³å‡ç·šãŒ200æ—¥ç§»å‹•å¹³å‡ç·šã‚’ã‚´ãƒ¼ãƒ«ãƒ‡ãƒ³ã‚¯ãƒ­ã‚¹")
             else:
-                buy_factors.append("25“úˆÚ“®•½‹Ïü‚ª200“úˆÚ“®•½‹Ïü‚Ìã•û‚Å„ˆÚ")
+                buy_factors.append("25æ—¥ç§»å‹•å¹³å‡ç·šãŒ200æ—¥ç§»å‹•å¹³å‡ç·šã®ä¸Šæ–¹ã§æ¨ç§»")
         else:
-            if ma_status == "ƒfƒbƒhƒNƒƒXFã‹C":
-                sell_factors.append("25“úˆÚ“®•½‹Ïü‚ª200“úˆÚ“®•½‹Ïü‚ğƒfƒbƒhƒNƒƒX")
+            if ma_status == "ãƒ‡ãƒƒãƒ‰ã‚¯ãƒ­ã‚¹ï¼šå¼±æ°—":
+                sell_factors.append("25æ—¥ç§»å‹•å¹³å‡ç·šãŒ200æ—¥ç§»å‹•å¹³å‡ç·šã‚’ãƒ‡ãƒƒãƒ‰ã‚¯ãƒ­ã‚¹")
             else:
-                sell_factors.append("25“úˆÚ“®•½‹Ïü‚ª200“úˆÚ“®•½‹Ïü‚Ì‰º•û‚Å„ˆÚ")
+                sell_factors.append("25æ—¥ç§»å‹•å¹³å‡ç·šãŒ200æ—¥ç§»å‹•å¹³å‡ç·šã®ä¸‹æ–¹ã§æ¨ç§»")
 
     if bb.buy_signal:
-        buy_factors.append("ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh‚ªã•ûƒuƒŒƒCƒNƒAƒEƒgiƒoƒ“ƒhŠg‘å’†j")
+        buy_factors.append("ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰ãŒä¸Šæ–¹ãƒ–ãƒ¬ã‚¤ã‚¯ã‚¢ã‚¦ãƒˆï¼ˆãƒãƒ³ãƒ‰æ‹¡å¤§ä¸­ï¼‰")
     elif bb.sell_signal:
-        sell_factors.append("ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh‚ª‰º•ûƒuƒŒƒCƒNƒAƒEƒgiƒoƒ“ƒhŠg‘å’†j")
+        sell_factors.append("ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰ãŒä¸‹æ–¹ãƒ–ãƒ¬ã‚¤ã‚¯ã‚¢ã‚¦ãƒˆï¼ˆãƒãƒ³ãƒ‰æ‹¡å¤§ä¸­ï¼‰")
     else:
-        neutral_factors.append(f"ƒ{ƒŠƒ“ƒWƒƒ[ƒoƒ“ƒh: {bb.position}‚Ìó‘Ô")
+        neutral_factors.append(f"ãƒœãƒªãƒ³ã‚¸ãƒ£ãƒ¼ãƒãƒ³ãƒ‰: {bb.position}ã®çŠ¶æ…‹")
 
-    if macd_status == "”ƒ‚¢ƒVƒOƒiƒ‹":
-        buy_factors.append("MACD‚ªƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚ğãŒü‚«‚ÉƒNƒƒX")
-    elif macd_status == "”„‚èƒVƒOƒiƒ‹":
-        sell_factors.append("MACD‚ªƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚ğ‰ºŒü‚«‚ÉƒNƒƒX")
+    if macd_status == "è²·ã„ã‚·ã‚°ãƒŠãƒ«":
+        buy_factors.append("MACDãŒã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã‚’ä¸Šå‘ãã«ã‚¯ãƒ­ã‚¹")
+    elif macd_status == "å£²ã‚Šã‚·ã‚°ãƒŠãƒ«":
+        sell_factors.append("MACDãŒã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã‚’ä¸‹å‘ãã«ã‚¯ãƒ­ã‚¹")
     elif latest_macd > latest_signal:
-        buy_factors.append("MACD‚ªƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚Ìã•û‚Å„ˆÚ")
+        buy_factors.append("MACDãŒã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã®ä¸Šæ–¹ã§æ¨ç§»")
     else:
-        sell_factors.append("MACD‚ªƒVƒOƒiƒ‹ƒ‰ƒCƒ“‚Ì‰º•û‚Å„ˆÚ")
+        sell_factors.append("MACDãŒã‚·ã‚°ãƒŠãƒ«ãƒ©ã‚¤ãƒ³ã®ä¸‹æ–¹ã§æ¨ç§»")
 
     if rsi_value < 30:
-        buy_factors.append(f"RSI‚ª{rsi_value:.1f}‚Å”„‚ç‚ê‚·‚¬‚Ì…€")
+        buy_factors.append(f"RSIãŒ{rsi_value:.1f}ã§å£²ã‚‰ã‚Œã™ãã®æ°´æº–")
     elif rsi_value > 70:
-        sell_factors.append(f"RSI‚ª{rsi_value:.1f}‚Å”ƒ‚í‚ê‚·‚¬‚Ì…€")
+        sell_factors.append(f"RSIãŒ{rsi_value:.1f}ã§è²·ã‚ã‚Œã™ãã®æ°´æº–")
     else:
-        neutral_factors.append(f"RSI {rsi_value:.1f}‚Å’†—§“I‚È…€")
+        neutral_factors.append(f"RSI {rsi_value:.1f}ã§ä¸­ç«‹çš„ãªæ°´æº–")
 
-    if dmi_status == "”ƒ‚¢ƒVƒOƒiƒ‹":
-        buy_factors.append("+DI‚ª-DI‚ğ‰º‚©‚çã”²‚¯iã¸ƒgƒŒƒ“ƒhŠJnj")
-    elif dmi_status == "”„‚èƒVƒOƒiƒ‹":
-        sell_factors.append("+DI‚ª-DI‚ğã‚©‚ç‰º”²‚¯i‰º~ƒgƒŒƒ“ƒhŠJnj")
+    if dmi_status == "è²·ã„ã‚·ã‚°ãƒŠãƒ«":
+        buy_factors.append("+DIãŒ-DIã‚’ä¸‹ã‹ã‚‰ä¸ŠæŠœã‘ï¼ˆä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰é–‹å§‹ï¼‰")
+    elif dmi_status == "å£²ã‚Šã‚·ã‚°ãƒŠãƒ«":
+        sell_factors.append("+DIãŒ-DIã‚’ä¸Šã‹ã‚‰ä¸‹æŠœã‘ï¼ˆä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰é–‹å§‹ï¼‰")
     elif current_plus > current_minus:
-        buy_factors.append("+DI‚ª-DI‚Ìã•ûiã¸ƒgƒŒƒ“ƒhŒp‘±j")
+        buy_factors.append("+DIãŒ-DIã®ä¸Šæ–¹ï¼ˆä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶šï¼‰")
     else:
-        sell_factors.append("+DI‚ª-DI‚Ì‰º•ûi‰º~ƒgƒŒƒ“ƒhŒp‘±j")
+        sell_factors.append("+DIãŒ-DIã®ä¸‹æ–¹ï¼ˆä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶šï¼‰")
 
     strong_buy = 0.0
     strong_sell = 0.0
     if current_ma25 is not None and current_ma200 is not None:
-        if ma_bullish and ma_status in ("ƒS[ƒ‹ƒfƒ“ƒNƒƒXF‹­‹C", "ã¸ƒgƒŒƒ“ƒhŒp‘±"):
+        if ma_bullish and ma_status in ("ã‚´ãƒ¼ãƒ«ãƒ‡ãƒ³ã‚¯ãƒ­ã‚¹ï¼šå¼·æ°—", "ä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶š"):
             strong_buy += 1
-        elif not ma_bullish and ma_status in ("ƒfƒbƒhƒNƒƒXFã‹C", "‰º~ƒgƒŒƒ“ƒhŒp‘±"):
+        elif not ma_bullish and ma_status in ("ãƒ‡ãƒƒãƒ‰ã‚¯ãƒ­ã‚¹ï¼šå¼±æ°—", "ä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰ç¶™ç¶š"):
             strong_sell += 1
     if bb.buy_signal:
         strong_buy += 1
     elif bb.sell_signal:
         strong_sell += 1
-    if macd_status == "”ƒ‚¢ƒVƒOƒiƒ‹":
+    if macd_status == "è²·ã„ã‚·ã‚°ãƒŠãƒ«":
         strong_buy += 1
-    elif macd_status == "”„‚èƒVƒOƒiƒ‹":
+    elif macd_status == "å£²ã‚Šã‚·ã‚°ãƒŠãƒ«":
         strong_sell += 1
     if rsi_value < 30:
         strong_buy += 0.5
@@ -564,33 +564,33 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
         strong_sell += 0.5
 
     if strong_buy >= 2 and strong_buy > strong_sell:
-        decision = "”ƒ‚¢„§"
+        decision = "è²·ã„æ¨å¥¨"
     elif strong_sell >= 2 and strong_sell > strong_buy:
-        decision = "”„‚è„§"
+        decision = "å£²ã‚Šæ¨å¥¨"
     else:
-        decision = "—lqŒ©"
+        decision = "æ§˜å­è¦‹"
 
-    conclusion = """### ¡Œ‹˜_
-Œ»İ‚ÌsêŠÂ‹«‚Í**{decision}**‚Æ”»’f‚³‚ê‚Ü‚·B
+    conclusion = """### â– çµè«–
+ç¾åœ¨ã®å¸‚å ´ç’°å¢ƒã¯**{decision}**ã¨åˆ¤æ–­ã•ã‚Œã¾ã™ã€‚
 
-**”ƒ‚¢—v‘f**
+**è²·ã„è¦ç´ **
 """.format(decision=decision)
 
-    conclusion += "".join(f"E{factor}\n" for factor in buy_factors) if buy_factors else "EŠY“–‚È‚µ\n"
-    conclusion += "\n**”„‚è—v‘f**\n"
-    conclusion += "".join(f"E{factor}\n" for factor in sell_factors) if sell_factors else "EŠY“–‚È‚µ\n"
+    conclusion += "".join(f"ãƒ»{factor}\n" for factor in buy_factors) if buy_factors else "ãƒ»è©²å½“ãªã—\n"
+    conclusion += "\n**å£²ã‚Šè¦ç´ **\n"
+    conclusion += "".join(f"ãƒ»{factor}\n" for factor in sell_factors) if sell_factors else "ãƒ»è©²å½“ãªã—\n"
 
     if neutral_factors:
-        conclusion += "\n**’†—§—v‘f**\n"
-        conclusion += "".join(f"E{factor}\n" for factor in neutral_factors)
+        conclusion += "\n**ä¸­ç«‹è¦ç´ **\n"
+        conclusion += "".join(f"ãƒ»{factor}\n" for factor in neutral_factors)
 
-    if decision == "”ƒ‚¢„§":
-        reasoning = "d—v‚Èw•W‚ª•¡””ƒ‚¢ƒVƒOƒiƒ‹‚ğ¦‚µ‚Ä‚¨‚èAã¸ƒgƒŒƒ“ƒh‚ª—D¨‚Å‚·B"
-    elif decision == "”„‚è„§":
-        reasoning = "d—v‚Èw•W‚ª•¡””„‚èƒVƒOƒiƒ‹‚ğ¦‚µ‚Ä‚¨‚èA‰º~ƒgƒŒƒ“ƒh‚ª—D¨‚Å‚·B"
+    if decision == "è²·ã„æ¨å¥¨":
+        reasoning = "é‡è¦ãªæŒ‡æ¨™ãŒè¤‡æ•°è²·ã„ã‚·ã‚°ãƒŠãƒ«ã‚’ç¤ºã—ã¦ãŠã‚Šã€ä¸Šæ˜‡ãƒˆãƒ¬ãƒ³ãƒ‰ãŒå„ªå‹¢ã§ã™ã€‚"
+    elif decision == "å£²ã‚Šæ¨å¥¨":
+        reasoning = "é‡è¦ãªæŒ‡æ¨™ãŒè¤‡æ•°å£²ã‚Šã‚·ã‚°ãƒŠãƒ«ã‚’ç¤ºã—ã¦ãŠã‚Šã€ä¸‹é™ãƒˆãƒ¬ãƒ³ãƒ‰ãŒå„ªå‹¢ã§ã™ã€‚"
     else:
-        reasoning = "ƒVƒOƒiƒ‹‚ª¬İ‚µ‚Ä‚¢‚é‚½‚ßA–¾Šm‚È•ûŒü«‚ªo‚é‚Ü‚Å‘Ò‹@‚ğ„§‚µ‚Ü‚·B"
+        reasoning = "ã‚·ã‚°ãƒŠãƒ«ãŒæ··åœ¨ã—ã¦ã„ã‚‹ãŸã‚ã€æ˜ç¢ºãªæ–¹å‘æ€§ãŒå‡ºã‚‹ã¾ã§å¾…æ©Ÿã‚’æ¨å¥¨ã—ã¾ã™ã€‚"
 
-    conclusion += f"\n**‘‡”»’f**: ”ƒ‚¢—v‘f{len(buy_factors)}ŒÂA”„‚è—v‘f{len(sell_factors)}ŒÂ‚Å‚·‚ªAd—vw•W‚Ì•ªÍ‚É‚æ‚è{decision}‚Æ”»’f‚µ‚Ü‚·B\n**”»’f——R**: {reasoning}"
+    conclusion += f"\n**ç·åˆåˆ¤æ–­**: è²·ã„è¦ç´ {len(buy_factors)}å€‹ã€å£²ã‚Šè¦ç´ {len(sell_factors)}å€‹ã§ã™ãŒã€é‡è¦æŒ‡æ¨™ã®åˆ†æã«ã‚ˆã‚Š{decision}ã¨åˆ¤æ–­ã—ã¾ã™ã€‚\n**åˆ¤æ–­ç†ç”±**: {reasoning}"
     detailed.append(conclusion)
     return summary, detailed
