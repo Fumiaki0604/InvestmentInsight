@@ -29,15 +29,30 @@ def _load_service_account_info() -> dict[str, Any] | None:
             st.warning("`gcp_service_account` secrets entry has unexpected format.")
 
     # Try loading from Render Secret Files locations
-    for secret_path in ["/etc/secrets/secrets.toml", "secrets.toml"]:
+    possible_paths = [
+        "/etc/secrets/secrets.toml",
+        "secrets.toml",
+        "./secrets.toml",
+        "/opt/render/project/src/secrets.toml",
+        os.path.join(os.getcwd(), "secrets.toml"),
+    ]
+
+    # Debug: print which paths exist
+    import sys
+    for path in possible_paths:
+        exists = Path(path).exists()
+        print(f"DEBUG: Checking {path} - exists: {exists}", file=sys.stderr)
+
+    for secret_path in possible_paths:
         if Path(secret_path).exists():
             try:
                 import toml
                 secrets_data = toml.load(secret_path)
                 if "gcp_service_account" in secrets_data:
+                    print(f"DEBUG: Successfully loaded secrets from {secret_path}", file=sys.stderr)
                     return dict(secrets_data["gcp_service_account"])
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as e:  # noqa: BLE001
+                print(f"DEBUG: Failed to load {secret_path}: {e}", file=sys.stderr)
 
     raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
     if not raw_value:
