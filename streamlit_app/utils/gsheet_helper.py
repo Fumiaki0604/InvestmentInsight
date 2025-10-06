@@ -16,40 +16,24 @@ SCOPES: Iterable[str] = ("https://www.googleapis.com/auth/spreadsheets.readonly"
 
 
 def _load_service_account_info() -> dict[str, Any] | None:
-    st.warning("🔍 DEBUG: _load_service_account_info() が呼び出されました")
-
+    # Try Streamlit secrets first
     try:
         secret_payload = st.secrets.get("gcp_service_account")
-        st.info(f"🔍 DEBUG: st.secrets.get('gcp_service_account') の結果: {type(secret_payload).__name__} = {secret_payload is not None}")
-    except Exception as e:
-        st.error(f"🔍 DEBUG: st.secretsへのアクセスでエラー: {e}")
-        secret_payload = None
-
-    if secret_payload:
-        st.info("🔍 DEBUG: st.secrets に gcp_service_account が見つかりました")
-        if isinstance(secret_payload, str):
-            st.info(f"🔍 DEBUG: secret_payload は文字列型 (長さ: {len(secret_payload)})")
+        if secret_payload:
+            if isinstance(secret_payload, str):
+                try:
+                    return json.loads(secret_payload)
+                except json.JSONDecodeError:
+                    pass
             try:
-                return json.loads(secret_payload)
-            except json.JSONDecodeError:
-                st.warning("`gcp_service_account` secrets entry is not valid JSON. Trying structured access.")
-        try:
-            st.info(f"🔍 DEBUG: dict()で変換を試みます")
-            return dict(secret_payload)
-        except Exception as e:  # noqa: BLE001
-            st.warning(f"`gcp_service_account` secrets entry has unexpected format: {e}")
+                return dict(secret_payload)
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception:
+        pass
 
-    # Try loading from Render Secret Files locations
-    st.info("🔍 DEBUG: Secret Filesのチェックをスキップして環境変数へ")
-
+    # Try environment variable
     raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
-
-    # Debug: Display in Streamlit UI
-    if raw_value:
-        st.info(f"🔍 DEBUG: GOOGLE_SERVICE_ACCOUNT_KEY が見つかりました (長さ: {len(raw_value)}文字)")
-    else:
-        st.error("🔍 DEBUG: GOOGLE_SERVICE_ACCOUNT_KEY が環境変数に見つかりません")
-
     if not raw_value:
         path_hint = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY_PATH")
         if path_hint:
@@ -61,51 +45,30 @@ def _load_service_account_info() -> dict[str, Any] | None:
 
     # Check if raw_value is JSON or a file path
     if raw_value.strip().startswith("{"):
-        st.info("🔍 DEBUG: 環境変数の値はJSONです。直接パースします")
         try:
-            result = json.loads(raw_value)
-            st.success(f"🔍 DEBUG: JSONのパースに成功しました（キー数: {len(result)}）")
-            return result
-        except json.JSONDecodeError as exc:
-            st.error(f"🔍 DEBUG: JSONパースエラー: {exc}")
+            return json.loads(raw_value)
+        except json.JSONDecodeError:
             return None
 
     # Otherwise, treat as file path
     try:
         candidate_path = Path(raw_value)
-        st.info(f"🔍 DEBUG: ファイルパスとしてチェック: {str(candidate_path)[:100]}...")
-
         if candidate_path.exists():
-            st.info(f"🔍 DEBUG: ファイルが存在しました。ファイルから読み込みます")
             raw_value = candidate_path.read_text(encoding="utf-8")
-
-        result = json.loads(raw_value)
-        st.success(f"🔍 DEBUG: JSONのパースに成功しました（キー数: {len(result)}）")
-        return result
-
-    except Exception as exc:
-        st.error(f"🔍 DEBUG: エラー: {type(exc).__name__}: {exc}")
+        return json.loads(raw_value)
+    except Exception:
         return None
 
 
-# Temporarily disabled cache for debugging
-# @lru_cache(maxsize=1)
+@lru_cache(maxsize=1)
 def get_credentials() -> Credentials | None:
-    st.info("🔍 DEBUG: get_credentials() が呼び出されました")
     info = _load_service_account_info()
-
     if not info:
-        st.error("🔍 DEBUG: _load_service_account_info() が None を返しました")
         return None
-
-    st.success(f"🔍 DEBUG: 認証情報を取得しました（タイプ: {type(info).__name__}）")
 
     try:
-        creds = Credentials.from_service_account_info(info, scopes=SCOPES)
-        st.success("🔍 DEBUG: 認証情報から Credentials を作成しました")
-        return creds
-    except Exception as e:  # pragma: no cover - configuration issue
-        st.error(f"🔍 DEBUG: Credentials作成エラー: {e}")
+        return Credentials.from_service_account_info(info, scopes=SCOPES)
+    except Exception:  # pragma: no cover - configuration issue
         return None
 
 
