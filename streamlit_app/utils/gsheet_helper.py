@@ -40,30 +40,7 @@ def _load_service_account_info() -> dict[str, Any] | None:
             st.warning(f"`gcp_service_account` secrets entry has unexpected format: {e}")
 
     # Try loading from Render Secret Files locations
-    possible_paths = [
-        "/etc/secrets/secrets.toml",
-        "secrets.toml",
-        "./secrets.toml",
-        "/opt/render/project/src/secrets.toml",
-        os.path.join(os.getcwd(), "secrets.toml"),
-    ]
-
-    # Debug: print which paths exist
-    import sys
-    for path in possible_paths:
-        exists = Path(path).exists()
-        print(f"DEBUG: Checking {path} - exists: {exists}", file=sys.stderr)
-
-    for secret_path in possible_paths:
-        if Path(secret_path).exists():
-            try:
-                import toml
-                secrets_data = toml.load(secret_path)
-                if "gcp_service_account" in secrets_data:
-                    print(f"DEBUG: Successfully loaded secrets from {secret_path}", file=sys.stderr)
-                    return dict(secrets_data["gcp_service_account"])
-            except Exception as e:  # noqa: BLE001
-                print(f"DEBUG: Failed to load {secret_path}: {e}", file=sys.stderr)
+    st.info("🔍 DEBUG: Secret Filesのチェックをスキップして環境変数へ")
 
     raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
 
@@ -83,13 +60,17 @@ def _load_service_account_info() -> dict[str, Any] | None:
             return None
 
     candidate_path = Path(raw_value)
+    st.info(f"🔍 DEBUG: ファイルパスとしてチェック: {str(candidate_path)[:100]}...")
     if candidate_path.exists():
+        st.info(f"🔍 DEBUG: ファイルが存在しました。ファイルから読み込みます")
         try:
             raw_value = candidate_path.read_text(encoding="utf-8")
         except UnicodeDecodeError as exc:  # noqa: F841
             raise RuntimeError(
                 "`GOOGLE_SERVICE_ACCOUNT_KEY` points to a binary file. Please provide the JSON service account key."
             ) from exc
+    else:
+        st.info(f"🔍 DEBUG: ファイルは存在しません。JSON文字列として扱います")
 
     try:
         result = json.loads(raw_value)
