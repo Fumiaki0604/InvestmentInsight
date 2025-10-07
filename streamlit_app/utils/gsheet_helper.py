@@ -16,9 +16,15 @@ SCOPES: Iterable[str] = ("https://www.googleapis.com/auth/spreadsheets.readonly"
 
 
 def _load_service_account_info() -> dict[str, Any] | None:
-    # Streamlitのsecretsはスキップ（環境変数を優先）
-    # Try environment variable
-    raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
+    # Try Streamlit secrets first (for Streamlit Cloud)
+    raw_value = None
+    if hasattr(st, "secrets") and "GOOGLE_SERVICE_ACCOUNT_KEY" in st.secrets:
+        raw_value = st.secrets["GOOGLE_SERVICE_ACCOUNT_KEY"]
+
+    # Fallback to environment variable (for Render/local)
+    if not raw_value:
+        raw_value = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
+
     if not raw_value:
         path_hint = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY_PATH")
         if path_hint:

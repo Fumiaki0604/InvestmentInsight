@@ -1,13 +1,22 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Dict, List
 
+import streamlit as st
 from openai import OpenAI
 
 
 def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
     try:
-        client = OpenAI()
+        # Try Streamlit secrets first, fallback to environment variable
+        api_key = None
+        if hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets:
+            api_key = st.secrets["OPENAI_API_KEY"]
+        if not api_key:
+            api_key = os.environ.get("OPENAI_API_KEY")
+
+        client = OpenAI(api_key=api_key)
         price_info = technical_data.get("price_info", "不明")
         rsi_info = technical_data.get("rsi_info", "不明")
         macd_info = technical_data.get("macd_info", "不明")
@@ -77,7 +86,14 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
 
 def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat_history: List[Dict[str, str]] | None = None) -> str:
     try:
-        client = OpenAI()
+        # Try Streamlit secrets first, fallback to environment variable
+        api_key = None
+        if hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets:
+            api_key = st.secrets["OPENAI_API_KEY"]
+        if not api_key:
+            api_key = os.environ.get("OPENAI_API_KEY")
+
+        client = OpenAI(api_key=api_key)
         system_context = f"""
 あなたは投資信託の分析に特化した金融アドバイザーです。
 以下のテクニカル指標データに基づいて、ユーザーの質問に答えてください。
