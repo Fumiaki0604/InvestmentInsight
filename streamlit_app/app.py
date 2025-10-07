@@ -35,8 +35,15 @@ from utils.slack_notifier import (
     save_fund_status,
 )
 
+import os
+
 STORAGE_PATH = Path("previous_fund_status.json")
-SPREADSHEET_ID = "1O3nYKIHCrDbjz1yBGrrAnq883Lgotfvvq035tC9wMVM"
+
+# Get SPREADSHEET_ID from secrets or environment variable
+if hasattr(st, "secrets") and "GOOGLE_SPREADSHEET_ID" in st.secrets:
+    SPREADSHEET_ID = st.secrets["GOOGLE_SPREADSHEET_ID"]
+else:
+    SPREADSHEET_ID = os.environ.get("GOOGLE_SPREADSHEET_ID", "1O3nYKIHCrDbjz1yBGrrAnq883Lgotfvvq035tC9wMVM")
 
 
 def get_latest_valid_value(series: pd.Series, current_index: int) -> float | None:
