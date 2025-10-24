@@ -59,7 +59,7 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
 """
 
         response = client.chat.completions.create(
-            model="gpt-4.1",
+            model="gpt-5",
             messages=[
                 {
                     "role": "system",
@@ -78,10 +78,10 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
     except Exception as exc:  # noqa: BLE001
         detail = str(exc).lower()
         if "rate limit" in detail:
-            return "?? APIリクエスト制限に達しました。時間をおいて再試行してください。"
+            return "⚠️ APIリクエスト制限に達しました。時間をおいて再試行してください。"
         if "timeout" in detail:
-            return "?? 通信がタイムアウトしました。再度お試しください。"
-        return "?? AI分析の生成中にエラーが発生しました。テクニカル指標の分析結果をご参照ください。"
+            return "⏱️ 通信がタイムアウトしました。再度お試しください。"
+        return "❌ AI分析の生成中にエラーが発生しました。テクニカル指標の分析結果をご参照ください。"
 
 
 def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat_history: List[Dict[str, str]] | None = None) -> str:
@@ -113,7 +113,7 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
         messages.append({"role": "user", "content": user_message})
 
         response = client.chat.completions.create(
-            model="gpt-4.1",
+            model="gpt-5",
             messages=messages,
             max_tokens=500,
             temperature=0.7,
@@ -124,4 +124,4 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
             raise ValueError("Empty response")
         return analysis
     except Exception:
-        return "?? チャット機能でエラーが発生しました。しばらく時間をおいて再度お試しください。"
+        return "❌ チャット機能でエラーが発生しました。しばらく時間をおいて再度お試しください。"
