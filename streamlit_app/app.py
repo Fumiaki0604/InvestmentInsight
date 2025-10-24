@@ -61,7 +61,7 @@ def get_delta_display(value: float, format_type: str = "price") -> tuple[str, st
     return (f"{value:,.0f}円", "normal") if format_type == "price" else (f"{value:.1f}", "normal")
 
 
-st.set_page_config(page_title="投資信託ナビゲーター", page_icon="??", layout="wide")
+st.set_page_config(page_title="投資信託ナビゲーター", page_icon="📊", layout="wide")
 st.title("投資信託ナビゲーター")
 st.markdown("各投資信託の基準価額、移動平均線の推移をグラフで表示します。")
 
@@ -212,9 +212,9 @@ with tab_detail:
                         st.metric("MACDヒストグラム", f"{hist_value:.2f}", delta=delta_text, delta_color=delta_color)
 
                         if hist_value > 0 and hist_prev < 0:
-                            st.info("?? MACDがシグナルを上向きにクロス（買いシグナル）")
+                            st.info("📈 MACDがシグナルを上向きにクロス（買いシグナル）")
                         elif hist_value < 0 and hist_prev > 0:
-                            st.info("?? MACDがシグナルを下向きにクロス（売りシグナル）")
+                            st.info("📉 MACDがシグナルを下向きにクロス（売りシグナル）")
 
                     if "DMI" in indicators:
                         st.markdown("#### DMI")
@@ -234,9 +234,9 @@ with tab_detail:
                         st.metric("ADX", f"{adx_value:.1f}", delta=delta_text, delta_color=delta_color)
 
                         if plus_value > minus_value and plus_prev <= minus_prev:
-                            st.info("?? +DIが-DIを下から上抜け（買いシグナル）")
+                            st.info("📈 +DIが-DIを下から上抜け（買いシグナル）")
                         elif plus_value < minus_value and plus_prev >= minus_prev:
-                            st.info("?? +DIが-DIを上から下抜け（売りシグナル）")
+                            st.info("📉 +DIが-DIを上から下抜け（売りシグナル）")
 
                 try:
                     summary, detailed = generate_technical_summary(df)
@@ -251,6 +251,44 @@ with tab_detail:
                                 st.markdown(analysis)
                 except Exception as exc:  # noqa: BLE001
                     st.error(f"テクニカル分析の生成中にエラーが発生しました: {exc}")
+
+                # technical_dataを事前に準備
+                ma25_value = df["基準価額"].rolling(window=25).mean().iloc[-1]
+                ma200_value = df["基準価額"].rolling(window=200).mean().iloc[-1]
+                current_price = df["基準価額"].iloc[-1]
+                ma25_prev = df["基準価額"].rolling(window=25).mean().iloc[-2]
+                ma200_prev = df["基準価額"].rolling(window=200).mean().iloc[-2]
+
+                if ma25_value > ma200_value and ma25_prev <= ma200_prev:
+                    ma_cross_status = "ゴールデンクロス"
+                elif ma25_value < ma200_value and ma25_prev >= ma200_prev:
+                    ma_cross_status = "デッドクロス"
+                elif ma25_value > ma200_value:
+                    ma_cross_status = "25日線が200日線の上方"
+                else:
+                    ma_cross_status = "25日線が200日線の下方"
+
+                _, analysis_details = generate_technical_summary(df)
+                sentiment = "強気" if analysis_details and "強気傾向" in analysis_details[-1] else "弱気"
+                decision = "様子見"
+                if analysis_details:
+                    for line in analysis_details[-1].split("\n"):
+                        if "**" in line:
+                            decision = line.replace("*", "").strip()
+                            break
+
+                technical_data = {
+                    "price_info": f"基準価額: {current_price:,.0f}円",
+                    "rsi_info": f"RSI: {calculate_rsi(df['基準価額']).iloc[-1]:.1f}",
+                    "macd_info": f"MACD: {calculate_macd(df['基準価額'])[0].iloc[-1]:.2f}",
+                    "trend": sentiment,
+                    "recommendation": decision,
+                    "ma25_value": float(ma25_value),
+                    "ma200_value": float(ma200_value),
+                    "price_ma25_ratio": float(((current_price - ma25_value) / ma25_value) * 100),
+                    "price_ma200_ratio": float(((current_price - ma200_value) / ma200_value) * 100),
+                    "ma_cross_status": ma_cross_status,
+                }
 
                 st.markdown(
                     """
@@ -272,48 +310,9 @@ div.stButton > button:hover {
                     unsafe_allow_html=True,
                 )
 
-                if st.button("?? AIによる詳細分析を表示", key=f"ai_analysis_{sheet_name}"):
+                if st.button("🤖 AIによる詳細分析を表示", key=f"ai_analysis_{sheet_name}"):
                     with st.spinner("AI分析を生成中..."):
                         try:
-                            _, analysis_details = generate_technical_summary(df)
-                            sentiment = "強気" if analysis_details and "強気傾向" in analysis_details[-1] else "弱気"
-                            decision = "様子見"
-                            if analysis_details:
-                                for line in analysis_details[-1].split("\n"):
-                                    if "**" in line:
-                                        decision = line.replace("*", "").strip()
-                                        break
-
-                            ma25_value = df["基準価額"].rolling(window=25).mean().iloc[-1]
-                            ma200_value = df["基準価額"].rolling(window=200).mean().iloc[-1]
-                            current_price = df["基準価額"].iloc[-1]
-                            ma25_prev = df["基準価額"].rolling(window=25).mean().iloc[-2]
-                            ma200_prev = df["基準価額"].rolling(window=200).mean().iloc[-2]
-
-                            if ma25_value > ma200_value and ma25_prev <= ma200_prev:
-                                ma_cross_status = "ゴールデンクロス"
-                            elif ma25_value < ma200_value and ma25_prev >= ma200_prev:
-                                ma_cross_status = "デッドクロス"
-                            elif ma25_value > ma200_value:
-                                ma_cross_status = "25日線が200日線の上方"
-                            else:
-                                ma_cross_status = "25日線が200日線の下方"
-
-                            technical_data = {
-                                "price_info": f"基準価額: {current_price:,.0f}円",
-                                "rsi_info": f"RSI: {calculate_rsi(df['基準価額']).iloc[-1]:.1f}",
-                                "macd_info": f"MACD: {calculate_macd(df['基準価額'])[0].iloc[-1]:.2f}",
-                                "trend": sentiment,
-                                "recommendation": decision,
-                                "ma25_value": float(ma25_value),
-                                "ma200_value": float(ma200_value),
-                                "price_ma25_ratio": float(((current_price - ma25_value) / ma25_value) * 100),
-                                "price_ma200_ratio": float(((current_price - ma200_value) / ma200_value) * 100),
-                                "ma_cross_status": ma_cross_status,
-                            }
-                            # technical_dataは変数として保持（セッションステートに保存しない）
-                            pass
-
                             ai_analysis = generate_personalized_analysis(technical_data)
                             if ai_analysis:
                                 st.markdown("### ■AIによる詳細分析")
@@ -322,7 +321,7 @@ div.stButton > button:hover {
                             st.error(f"AI分析の生成中にエラーが発生しました: {exc}")
 
                 if technical_data:
-                    st.markdown("### ?? AIアナリストとチャット")
+                    st.markdown("### 💬 AIアナリストとチャット")
                     st.markdown(f"**{sheet_name}** のテクニカル分析について、AIアナリストと対話できます。")
 
                     # チャット履歴を最新5件に制限してメモリ削減
@@ -336,9 +335,9 @@ div.stButton > button:hover {
 
                     for message in history:
                         if message["role"] == "user":
-                            st.markdown(f"**?? あなた**: {message['content']}")
+                            st.markdown(f"**👤 あなた**: {message['content']}")
                         else:
-                            st.markdown(f"**?? AIアナリスト**: {message['content']}")
+                            st.markdown(f"**🤖 AIアナリスト**: {message['content']}")
 
                     st.session_state.setdefault("chat_input_value", "")
                     st.session_state.setdefault("processing_message", False)
@@ -375,7 +374,7 @@ div.stButton > button:hover {
     else:
         st.info("表示する投資信託を選択してください。")
 with tab_list:
-    st.markdown("### ?? 全銘柄一覧")
+    st.markdown("### 📋 全銘柄一覧")
     st.markdown("登録されている全銘柄の現在の状況を一覧で確認できます。")
 
     def get_cache_key() -> str:
@@ -456,7 +455,7 @@ with tab_list:
             st.caption(f"次回更新予定: {next_update.strftime('%m/%d %H:%M')}")
         with col3:
             notifier = SlackNotifier()
-            st.caption("?? Slack通知: 有効" if notifier.is_configured() else "?? Slack通知: 無効")
+            st.caption("✅ Slack通知: 有効" if notifier.is_configured() else "❌ Slack通知: 無効")
         with col4:
             c4a, c4b = st.columns(2)
             with c4a:
@@ -478,7 +477,7 @@ with tab_list:
                         if status_changes:
                             sent = notifier.send_multiple_notifications(status_changes)
                             if sent:
-                                st.success(f"?? {sent}件の投資推奨変更をSlackに通知しました")
+                                st.success(f"✅ {sent}件の投資推奨変更をSlackに通知しました")
                         save_fund_status(fund_data, str(STORAGE_PATH))
                     except Exception as exc:  # noqa: BLE001
                         st.warning(f"Slack通知処理でエラーが発生しました: {exc}")
@@ -486,7 +485,7 @@ with tab_list:
                 st.success("データを読み込みました（翌朝8時まで高速表示されます）")
         else:
             fund_data = get_all_fund_data(available_sheets, cache_key)
-            st.info("?? キャッシュからデータを表示中（高速表示）")
+            st.info("⚡ キャッシュからデータを表示中（高速表示）")
 
         if st.session_state.get("test_slack"):
             notifier = SlackNotifier()
@@ -520,7 +519,7 @@ with tab_list:
                     with st.spinner("Slackにテスト通知を送信中..."):
                         sent = notifier.send_multiple_notifications(test_changes)
                     if sent:
-                        st.success(f"?? {sent}件のテスト通知をSlackに送信しました！")
+                        st.success(f"✅ {sent}件のテスト通知をSlackに送信しました！")
                         with st.expander("送信内容の詳細"):
                             for change in test_changes:
                                 st.write(f"**{change['fund_name']}**")
@@ -528,11 +527,11 @@ with tab_list:
                                 st.write(f"現在価格: {change['price']} ({change['price_change']})")
                                 st.write("---")
                     else:
-                        st.error("?? Slack通知の送信に失敗しました")
+                        st.error("❌ Slack通知の送信に失敗しました")
                 except Exception as exc:  # noqa: BLE001
-                    st.error(f"?? Slack通知エラー: {exc}")
+                    st.error(f"❌ Slack通知エラー: {exc}")
             else:
-                st.error("?? SLACK_WEBHOOK_URLが設定されていません")
+                st.error("❌ SLACK_WEBHOOK_URLが設定されていません")
             st.session_state.test_slack = False
         if st.session_state.get("simulate_change"):
             notifier = SlackNotifier()
@@ -552,7 +551,7 @@ with tab_list:
                         with st.spinner("変更を検出してSlack通知を送信中..."):
                             sent = notifier.send_multiple_notifications(status_changes)
                         if sent:
-                            st.success(f"?? {sent}件のステータス変更をSlackに通知しました！")
+                            st.success(f"✅ {sent}件のステータス変更をSlackに通知しました！")
                             with st.expander("検出された変更"):
                                 for change in status_changes:
                                     st.write(f"**{change['fund_name']}**")
@@ -560,13 +559,13 @@ with tab_list:
                                     st.write(f"現在価格: {change['price']} ({change['price_change']})")
                                     st.write("---")
                         else:
-                            st.error("?? Slack通知の送信に失敗しました")
+                            st.error("❌ Slack通知の送信に失敗しました")
                     else:
-                        st.info("?? 変更可能なファンドが見つかりませんでした")
+                        st.info("ℹ️ 変更可能なファンドが見つかりませんでした")
                 except Exception as exc:  # noqa: BLE001
-                    st.error(f"?? シミュレーションエラー: {exc}")
+                    st.error(f"❌ シミュレーションエラー: {exc}")
             else:
-                st.error("?? SLACK_WEBHOOK_URLが設定されていません")
+                st.error("❌ SLACK_WEBHOOK_URLが設定されていません")
             st.session_state.simulate_change = False
 
         summary_df = pd.DataFrame(fund_data)
@@ -584,7 +583,7 @@ with tab_list:
         styled_df = summary_df.style.map(style_status, subset=["ステータス"])
         st.dataframe(styled_df, use_container_width=True, hide_index=True, height=400)
 
-        st.markdown("#### ?? サマリー統計")
+        st.markdown("#### 📊 サマリー統計")
         col_a, col_b, col_c, col_d = st.columns(4)
         with col_a:
             st.metric("買い推奨", len([f for f in fund_data if f["ステータス"] == "買い推奨"]))
@@ -595,7 +594,7 @@ with tab_list:
         with col_d:
             st.metric("データなし/エラー", len([f for f in fund_data if f["ステータス"] in {"データなし", "エラー", "分析エラー"}]))
 
-        st.markdown("#### ?? フィルター")
+        st.markdown("#### 🔍 フィルター")
         status_filter = st.selectbox("ステータスでフィルター", ["すべて", "買い推奨", "売り推奨", "様子見", "データなし/エラー"])
         if status_filter != "すべて":
             if status_filter == "データなし/エラー":
@@ -607,7 +606,7 @@ with tab_list:
     else:
         st.error("シートデータの読み込みに失敗しました。")
 with tab_corr:
-    st.header("?? 相関分析")
+    st.header("📈 相関分析")
     st.markdown("銘柄間の価格変動相関関係を分析します（直近1年間のデータを使用）")
 
     try:
@@ -627,7 +626,7 @@ with tab_corr:
 
         settings_col, result_col = st.columns([1, 3])
         with settings_col:
-            st.subheader("?? 分析設定")
+            st.subheader("⚙️ 分析設定")
             selected_fund = st.selectbox(
                 "詳細分析する銘柄を選択",
                 options=["全体マトリックス表示"] + available_sheets_corr,
@@ -644,25 +643,25 @@ with tab_corr:
             st.caption("すべての相関係数を表示します")
 
         with result_col:
-            st.subheader("?? 相関分析結果")
+            st.subheader("📊 相関分析結果")
             with st.spinner(f"相関分析データを計算中...（{selected_period}）"):
                 correlation_data = get_cached_correlation_data(available_sheets_corr, period_days)
                 if correlation_data:
-                    st.info(f"?? データを取得した銘柄数: {len(correlation_data)}銘柄")
+                    st.info(f"✅ データを取得した銘柄数: {len(correlation_data)}銘柄")
                     preview = [f"{name}: {len(series)}日分" for name, series in list(correlation_data.items())[:3]]
                     st.caption(", ".join(preview) + ("..." if len(correlation_data) > 3 else ""))
                 else:
-                    st.error("?? 相関分析データが取得できませんでした。")
+                    st.error("❌ 相関分析データが取得できませんでした。")
                 correlation_matrix = get_cached_correlation_matrix((correlation_data, period_days)) if correlation_data else None
 
             if correlation_matrix is not None and not correlation_matrix.empty:
                 if selected_fund == "全体マトリックス表示":
-                    st.markdown("#### ?? 全銘柄相関マトリックス")
+                    st.markdown("#### 🔥 全銘柄相関マトリックス")
                     fig = create_correlation_heatmap(correlation_matrix)
                     if fig:
                         st.plotly_chart(fig, use_container_width=True)
 
-                    st.markdown("#### ?? 相関統計サマリー")
+                    st.markdown("#### 📊 相関統計サマリー")
                     c1, c2, c3, c4 = st.columns(4)
                     upper_triangle = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool)).stack()
                     with c1:
@@ -674,7 +673,7 @@ with tab_corr:
                     with c4:
                         st.metric("強相関ペア数", len(upper_triangle[upper_triangle.abs() > 0.7]))
 
-                    st.markdown("#### ?? 相関の強いペア（上位10位）")
+                    st.markdown("#### 🔗 相関の強いペア（上位10位）")
                     pairs = []
                     for i in range(len(correlation_matrix.columns)):
                         for j in range(i + 1, len(correlation_matrix.columns)):
@@ -697,7 +696,7 @@ with tab_corr:
                     pairs_df["abs_corr"] = pairs_df["相関係数"].astype(float).abs()
                     st.dataframe(pairs_df.nlargest(10, "abs_corr").drop(columns=["abs_corr"]), use_container_width=True, hide_index=True)
                 else:
-                    st.markdown(f"#### ?? {selected_fund}との相関分析")
+                    st.markdown(f"#### 📊 {selected_fund}との相関分析")
                     fund_corr = get_fund_correlations(correlation_matrix, selected_fund)
                     if fund_corr is not None and not fund_corr.empty:
                         bar_fig = create_correlation_bar_chart(fund_corr, selected_fund)
@@ -705,9 +704,9 @@ with tab_corr:
                             st.plotly_chart(bar_fig, use_container_width=True)
                         summary_table = create_correlation_summary_table(fund_corr, selected_fund)
                         if summary_table is not None:
-                            st.markdown("#### ?? 詳細分析結果")
+                            st.markdown("#### 📋 詳細分析結果")
                             st.dataframe(summary_table, use_container_width=True, hide_index=True)
-                        st.markdown("#### ?? 投資判断への活用")
+                        st.markdown("#### 💡 投資判断への活用")
                         high_pos = fund_corr[fund_corr > 0.7]
                         if not high_pos.empty:
                             st.success(f"**強い正の相関銘柄**: {', '.join(high_pos.index[:3])}")
@@ -728,7 +727,7 @@ with tab_corr:
         st.markdown("---")
         st.markdown(
             """
-#### ?? 相関分析について
+#### 📚 相関分析について
 **相関係数の解釈：**
 - **+0.7～+1.0**: 強い正の相関（同じ方向に動く）
 - **+0.3～+0.7**: 中程度の正の相関
