@@ -54,15 +54,15 @@ def get_correlation_data(sheet_list: Iterable[str], period_days: int = 252) -> D
         except Exception as exc:  # noqa: BLE001
             failed.append(f"{sheet_name}: {exc}")
 
-    st.write(f"?? データ取得結果: 成功 {successful}銘柄, 失敗 {len(failed)}銘柄")
+    st.write(f"📊 データ取得結果: 成功 {successful}銘柄, 失敗 {len(failed)}銘柄")
     if failed:
-        with st.expander("?? データ取得エラーの詳細", expanded=False):
+        with st.expander("⚠️ データ取得エラーの詳細", expanded=False):
             for error in failed:
-                st.caption(f"? {error}")
+                st.caption(f"❌ {error}")
     if correlation_data:
-        with st.expander(f"? 成功した銘柄 ({len(correlation_data)}件)", expanded=False):
+        with st.expander(f"✅ 成功した銘柄 ({len(correlation_data)}件)", expanded=False):
             for fund_name, series in correlation_data.items():
-                st.caption(f"? {fund_name}: {len(series)}日分のリターンデータ")
+                st.caption(f"📈 {fund_name}: {len(series)}日分のリターンデータ")
 
     return correlation_data
 

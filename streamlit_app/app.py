@@ -11,6 +11,7 @@ import streamlit as st
 
 from utils.chart_helper import (
     calculate_dmi,
+    calculate_ichimoku,
     calculate_macd,
     calculate_rsi,
     calculate_volatility,
@@ -121,7 +122,7 @@ with tab_detail:
                 with chart_container:
                     indicators = st.multiselect(
                         "表示するテクニカル指標を選択",
-                        ["移動平均線", "RSI", "MACD", "ボリンジャーバンド", "DMI"],
+                        ["移動平均線", "RSI", "MACD", "ボリンジャーバンド", "DMI", "一目均衡表"],
                         default=["移動平均線", "RSI", "MACD", "ボリンジャーバンド", "DMI"],
                     )
                     indicator_flags = {indicator: True for indicator in indicators}
@@ -237,6 +238,48 @@ with tab_detail:
                             st.info("📈 +DIが-DIを下から上抜け（買いシグナル）")
                         elif plus_value < minus_value and plus_prev >= minus_prev:
                             st.info("📉 +DIが-DIを上から下抜け（売りシグナル）")
+
+                    if "一目均衡表" in indicators:
+                        st.markdown("#### 一目均衡表")
+                        tenkan, kijun, senkou_a, senkou_b, chikou = calculate_ichimoku(df["基準価額"])
+                        tenkan_value = tenkan.iloc[-1] if not tenkan.isna().iloc[-1] else 0
+                        kijun_value = kijun.iloc[-1] if not kijun.isna().iloc[-1] else 0
+                        senkou_a_value = senkou_a.iloc[-1] if not senkou_a.isna().iloc[-1] else 0
+                        senkou_b_value = senkou_b.iloc[-1] if not senkou_b.isna().iloc[-1] else 0
+
+                        if len(tenkan.dropna()) >= 2:
+                            tenkan_prev = tenkan.dropna().iloc[-2]
+                            delta_text, delta_color = get_delta_display(tenkan_value - tenkan_prev)
+                        else:
+                            delta_text, delta_color = ("データなし", "off")
+                        st.metric("転換線", f"{tenkan_value:,.0f}円", delta=delta_text, delta_color=delta_color)
+
+                        if len(kijun.dropna()) >= 2:
+                            kijun_prev = kijun.dropna().iloc[-2]
+                            delta_text, delta_color = get_delta_display(kijun_value - kijun_prev)
+                        else:
+                            delta_text, delta_color = ("データなし", "off")
+                        st.metric("基準線", f"{kijun_value:,.0f}円", delta=delta_text, delta_color=delta_color)
+
+                        st.metric("先行スパン1", f"{senkou_a_value:,.0f}円")
+                        st.metric("先行スパン2", f"{senkou_b_value:,.0f}円")
+
+                        # シグナル判定
+                        if len(tenkan.dropna()) >= 2 and len(kijun.dropna()) >= 2:
+                            if tenkan_value > kijun_value and tenkan_prev <= kijun_prev:
+                                st.info("📈 転換線が基準線を上抜け（好転シグナル）")
+                            elif tenkan_value < kijun_value and tenkan_prev >= kijun_prev:
+                                st.info("📉 転換線が基準線を下抜け（逆転シグナル）")
+
+                        # 雲との位置関係
+                        cloud_top = max(senkou_a_value, senkou_b_value)
+                        cloud_bottom = min(senkou_a_value, senkou_b_value)
+                        if current_price > cloud_top:
+                            st.success("☁️ 基準価額が雲の上方（強気）")
+                        elif current_price < cloud_bottom:
+                            st.warning("☁️ 基準価額が雲の下方（弱気）")
+                        else:
+                            st.info("☁️ 基準価額が雲の中（様子見）")
 
                 try:
                     summary, detailed = generate_technical_summary(df)
@@ -695,6 +738,9 @@ with tab_corr:
                     pairs_df = pd.DataFrame(pairs)
                     pairs_df["abs_corr"] = pairs_df["相関係数"].astype(float).abs()
                     st.dataframe(pairs_df.nlargest(10, "abs_corr").drop(columns=["abs_corr"]), use_container_width=True, hide_index=True)
+
+                    st.markdown("#### 🔗 相関の弱いペア（下位10位）")
+                    st.dataframe(pairs_df.nsmallest(10, "abs_corr").drop(columns=["abs_corr"]), use_container_width=True, hide_index=True)
                 else:
                     st.markdown(f"#### 📊 {selected_fund}との相関分析")
                     fund_corr = get_fund_correlations(correlation_matrix, selected_fund)
