@@ -762,9 +762,9 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
     elif rsi_value > 70:
         strong_sell += 0.5
     if ichimoku_status == "強気":
-        strong_buy += 1
+        strong_buy += 0.5
     elif ichimoku_status == "弱気":
-        strong_sell += 1
+        strong_sell += 0.5
 
     if strong_buy >= 2 and strong_buy > strong_sell:
         decision = "買い推奨"

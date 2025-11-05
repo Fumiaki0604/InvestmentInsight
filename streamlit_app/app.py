@@ -689,13 +689,18 @@ with tab_corr:
             st.subheader("📊 相関分析結果")
             with st.spinner(f"相関分析データを計算中...（{selected_period}）"):
                 correlation_data = get_cached_correlation_data(available_sheets_corr, period_days)
-                if correlation_data:
+                if correlation_data and len(correlation_data) >= 2:
                     st.info(f"✅ データを取得した銘柄数: {len(correlation_data)}銘柄")
                     preview = [f"{name}: {len(series)}日分" for name, series in list(correlation_data.items())[:3]]
                     st.caption(", ".join(preview) + ("..." if len(correlation_data) > 3 else ""))
+                elif correlation_data and len(correlation_data) < 2:
+                    st.error(f"❌ 相関分析には最低2銘柄必要です。現在: {len(correlation_data)}銘柄")
+                    st.info("💡 エラー詳細は上記の「⚠️ データ取得エラーの詳細」を確認してください。")
+                    correlation_data = {}
                 else:
                     st.error("❌ 相関分析データが取得できませんでした。")
-                correlation_matrix = get_cached_correlation_matrix((correlation_data, period_days)) if correlation_data else None
+                    st.info("💡 エラー詳細は上記の「⚠️ データ取得エラーの詳細」を確認してください。")
+                correlation_matrix = get_cached_correlation_matrix((correlation_data, period_days)) if correlation_data and len(correlation_data) >= 2 else None
 
             if correlation_matrix is not None and not correlation_matrix.empty:
                 if selected_fund == "全体マトリックス表示":

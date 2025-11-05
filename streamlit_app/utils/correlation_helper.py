@@ -41,8 +41,14 @@ def get_correlation_data(sheet_list: Iterable[str], period_days: int = 252) -> D
     for sheet_name in sheet_list:
         try:
             df = get_sheet_data(SPREADSHEET_ID, sheet_name)
-            if df is None or df.empty or "基準価額" not in df.columns:
-                failed.append(f"{sheet_name}: データ不足")
+            if df is None:
+                failed.append(f"{sheet_name}: データ取得失敗（None）")
+                continue
+            if df.empty:
+                failed.append(f"{sheet_name}: データが空")
+                continue
+            if "基準価額" not in df.columns:
+                failed.append(f"{sheet_name}: 基準価額列が見つかりません（列: {', '.join(df.columns.tolist())}）")
                 continue
 
             price_changes = calculate_price_changes(df, period_days)
@@ -50,9 +56,10 @@ def get_correlation_data(sheet_list: Iterable[str], period_days: int = 252) -> D
                 correlation_data[sheet_name] = price_changes
                 successful += 1
             else:
-                failed.append(f"{sheet_name}: 有効な価格変動データなし")
+                failed.append(f"{sheet_name}: 有効な価格変動データなし（データ数: {len(df)}）")
         except Exception as exc:  # noqa: BLE001
-            failed.append(f"{sheet_name}: {exc}")
+            import traceback
+            failed.append(f"{sheet_name}: {type(exc).__name__}: {exc}\n{traceback.format_exc()}")
 
     st.write(f"📊 データ取得結果: 成功 {successful}銘柄, 失敗 {len(failed)}銘柄")
     if failed:
