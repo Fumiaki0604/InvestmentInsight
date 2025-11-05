@@ -91,6 +91,41 @@ def calculate_dmi(price_series: pd.Series, period: int = 14) -> Tuple[pd.Series,
     return plus_di, minus_di, adx
 
 
+def calculate_ichimoku(price_series: pd.Series) -> Tuple[pd.Series, pd.Series, pd.Series, pd.Series, pd.Series]:
+    """
+    一目均衡表の5つの構成要素を計算
+
+    Returns:
+        tenkan_sen: 転換線（9日間の最高値と最安値の平均）
+        kijun_sen: 基準線（26日間の最高値と最安値の平均）
+        senkou_span_a: 先行スパン1（転換線と基準線の平均を26日先行）
+        senkou_span_b: 先行スパン2（52日間の最高値と最安値の平均を26日先行）
+        chikou_span: 遅行スパン（当日の終値を26日遅行）
+    """
+    # 転換線：過去9日間の最高値と最安値の平均
+    high_9 = price_series.rolling(window=9).max()
+    low_9 = price_series.rolling(window=9).min()
+    tenkan_sen = (high_9 + low_9) / 2
+
+    # 基準線：過去26日間の最高値と最安値の平均
+    high_26 = price_series.rolling(window=26).max()
+    low_26 = price_series.rolling(window=26).min()
+    kijun_sen = (high_26 + low_26) / 2
+
+    # 先行スパン1：転換線と基準線の平均を26日先行
+    senkou_span_a = ((tenkan_sen + kijun_sen) / 2).shift(26)
+
+    # 先行スパン2：過去52日間の最高値と最安値の平均を26日先行
+    high_52 = price_series.rolling(window=52).max()
+    low_52 = price_series.rolling(window=52).min()
+    senkou_span_b = ((high_52 + low_52) / 2).shift(26)
+
+    # 遅行スパン：当日の終値を26日遅行
+    chikou_span = price_series.shift(-26)
+
+    return tenkan_sen, kijun_sen, senkou_span_a, senkou_span_b, chikou_span
+
+
 def add_ma_highlight(fig: go.Figure, df: pd.DataFrame, ma_column: str, color: str, row: int = 1, col: int = 1) -> None:
     if ma_column not in df.columns or df[ma_column].dropna().empty:
         return
@@ -128,12 +163,16 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
         step = max(1, len(df) // 250)
         df = df.iloc[::step].copy()
 
+    # 一目均衡表が有効な場合は6行、それ以外は5行
+    num_rows = 6 if show_indicators.get("一目均衡表", False) else 5
+    row_heights = [0.25, 0.2, 0.2, 0.15, 0.1, 0.1] if num_rows == 6 else [0.3, 0.2, 0.2, 0.15, 0.15]
+
     fig = make_subplots(
-        rows=5,
+        rows=num_rows,
         cols=1,
         shared_xaxes=True,
         vertical_spacing=0.05,
-        row_heights=[0.3, 0.2, 0.2, 0.15, 0.15],
+        row_heights=row_heights,
     )
 
     fig.add_trace(
@@ -219,12 +258,81 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
         fig.add_trace(go.Scatter(x=df["日付"], y=macd, name="MACD", line=dict(color="#17becf", width=1.5), connectgaps=True), row=4, col=1)
         fig.add_trace(go.Scatter(x=df["日付"], y=signal, name="Signal", line=dict(color="#bcbd22", width=1.5), connectgaps=True), row=4, col=1)
 
+    dmi_row = 5
+    ichimoku_row = 6
+
     if show_indicators.get("DMI", False):
         plus_di, minus_di, adx = calculate_dmi(df["基準価額"])
-        fig.add_trace(go.Scatter(x=df["日付"], y=plus_di, name="+DI", line=dict(color="red", width=1.5), connectgaps=True), row=5, col=1)
-        fig.add_trace(go.Scatter(x=df["日付"], y=minus_di, name="-DI", line=dict(color="blue", width=1.5), connectgaps=True), row=5, col=1)
-        fig.add_trace(go.Scatter(x=df["日付"], y=adx, name="ADX", line=dict(color="green", width=1.5), connectgaps=True), row=5, col=1)
-        fig.update_yaxes(title_text="DMI", range=[-5, 105], row=5, col=1)
+        fig.add_trace(go.Scatter(x=df["日付"], y=plus_di, name="+DI", line=dict(color="red", width=1.5), connectgaps=True), row=dmi_row, col=1)
+        fig.add_trace(go.Scatter(x=df["日付"], y=minus_di, name="-DI", line=dict(color="blue", width=1.5), connectgaps=True), row=dmi_row, col=1)
+        fig.add_trace(go.Scatter(x=df["日付"], y=adx, name="ADX", line=dict(color="green", width=1.5), connectgaps=True), row=dmi_row, col=1)
+        fig.update_yaxes(title_text="DMI", range=[-5, 105], row=dmi_row, col=1)
+
+    if show_indicators.get("一目均衡表", False):
+        tenkan, kijun, senkou_a, senkou_b, chikou = calculate_ichimoku(df["基準価額"])
+
+        # 基準価額を表示
+        fig.add_trace(
+            go.Scatter(
+                x=df["日付"],
+                y=df["基準価額"],
+                name="基準価額",
+                line=dict(color="#1f77b4", width=2),
+                showlegend=False,
+                connectgaps=True,
+            ),
+            row=ichimoku_row,
+            col=1,
+        )
+
+        # 転換線（赤）
+        fig.add_trace(
+            go.Scatter(x=df["日付"], y=tenkan, name="転換線", line=dict(color="red", width=1.5), connectgaps=True),
+            row=ichimoku_row,
+            col=1,
+        )
+
+        # 基準線（青）
+        fig.add_trace(
+            go.Scatter(x=df["日付"], y=kijun, name="基準線", line=dict(color="blue", width=1.5), connectgaps=True),
+            row=ichimoku_row,
+            col=1,
+        )
+
+        # 先行スパン1（緑）
+        fig.add_trace(
+            go.Scatter(
+                x=df["日付"],
+                y=senkou_a,
+                name="先行スパン1",
+                line=dict(color="green", width=1, dash="dot"),
+                connectgaps=True,
+            ),
+            row=ichimoku_row,
+            col=1,
+        )
+
+        # 先行スパン2（オレンジ）
+        fig.add_trace(
+            go.Scatter(
+                x=df["日付"],
+                y=senkou_b,
+                name="先行スパン2",
+                line=dict(color="orange", width=1, dash="dot"),
+                connectgaps=True,
+                fill="tonexty",
+                fillcolor="rgba(128,128,128,0.2)",
+            ),
+            row=ichimoku_row,
+            col=1,
+        )
+
+        # 遅行スパン（紫）
+        fig.add_trace(
+            go.Scatter(x=df["日付"], y=chikou, name="遅行スパン", line=dict(color="purple", width=1.5), connectgaps=True),
+            row=ichimoku_row,
+            col=1,
+        )
 
     fig.update_layout(
         title_text="テクニカル分析チャート",
@@ -252,7 +360,11 @@ def create_price_chart(df: pd.DataFrame, show_indicators: Dict[str, bool] | None
         macd_margin = (macd_max - macd_min) * 0.1 if macd_max != macd_min else abs(macd_max) * 0.1
         fig.update_yaxes(title_text="MACD", range=[macd_min - macd_margin, macd_max + macd_margin], row=4, col=1)
 
-    fig.update_xaxes(title_text="日付", row=5, col=1)
+    if show_indicators.get("一目均衡表", False):
+        fig.update_yaxes(title_text="一目均衡表", row=ichimoku_row, col=1)
+        fig.update_xaxes(title_text="日付", row=ichimoku_row, col=1)
+    else:
+        fig.update_xaxes(title_text="日付", row=dmi_row, col=1)
     return fig
 
 
@@ -500,6 +612,79 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
 """,
     )
 
+    # 一目均衡表の分析
+    tenkan, kijun, senkou_a, senkou_b, chikou = calculate_ichimoku(df["基準価額"])
+    ichimoku_status = "データ不足"
+    ichimoku_signal_count = 0
+
+    if len(tenkan.dropna()) >= 2 and len(kijun.dropna()) >= 2:
+        current_tenkan = tenkan.dropna().iloc[-1]
+        current_kijun = kijun.dropna().iloc[-1]
+        prev_tenkan = tenkan.dropna().iloc[-2]
+        prev_kijun = kijun.dropna().iloc[-2]
+        current_price = df["基準価額"].iloc[-1]
+
+        # 先行スパンから雲の位置を計算
+        current_senkou_a = senkou_a.dropna().iloc[-1] if len(senkou_a.dropna()) > 0 else current_price
+        current_senkou_b = senkou_b.dropna().iloc[-1] if len(senkou_b.dropna()) > 0 else current_price
+        cloud_top = max(current_senkou_a, current_senkou_b)
+        cloud_bottom = min(current_senkou_a, current_senkou_b)
+
+        # 転換線と基準線のクロス
+        tenkan_kijun_cross = ""
+        if current_tenkan > current_kijun and prev_tenkan <= prev_kijun:
+            tenkan_kijun_cross = "好転（転換線が基準線を上抜け）"
+            summary.append("・一目均衡表: 転換線が基準線を上抜け（好転シグナル）")
+            ichimoku_signal_count += 1
+        elif current_tenkan < current_kijun and prev_tenkan >= prev_kijun:
+            tenkan_kijun_cross = "逆転（転換線が基準線を下抜け）"
+            summary.append("・一目均衡表: 転換線が基準線を下抜け（逆転シグナル）")
+            ichimoku_signal_count -= 1
+        elif current_tenkan > current_kijun:
+            tenkan_kijun_cross = "転換線が基準線の上方（強気）"
+            ichimoku_signal_count += 0.5
+        else:
+            tenkan_kijun_cross = "転換線が基準線の下方（弱気）"
+            ichimoku_signal_count -= 0.5
+
+        # 雲との位置関係
+        cloud_position = ""
+        if current_price > cloud_top:
+            cloud_position = "基準価額が雲の上方（強気）"
+            summary.append("・一目均衡表: 基準価額が雲の上方（強気）")
+            ichimoku_signal_count += 1
+        elif current_price < cloud_bottom:
+            cloud_position = "基準価額が雲の下方（弱気）"
+            summary.append("・一目均衡表: 基準価額が雲の下方（弱気）")
+            ichimoku_signal_count -= 1
+        else:
+            cloud_position = "基準価額が雲の中（様子見）"
+
+        # 総合判定
+        if ichimoku_signal_count >= 1.5:
+            ichimoku_status = "強気"
+        elif ichimoku_signal_count <= -1.5:
+            ichimoku_status = "弱気"
+        else:
+            ichimoku_status = "中立"
+
+        detailed.append(
+            f"""
+#### 一目均衡表分析
+- **現在の状態**: {ichimoku_status}
+- 転換線: {current_tenkan:,.0f}円
+- 基準線: {current_kijun:,.0f}円
+- 先行スパン1: {current_senkou_a:,.0f}円
+- 先行スパン2: {current_senkou_b:,.0f}円
+- 雲の範囲: {cloud_bottom:,.0f}円 ～ {cloud_top:,.0f}円
+- **転換線と基準線**: {tenkan_kijun_cross}
+- **雲との位置**: {cloud_position}
+- **シグナル判定**:
+  - 転換線が基準線を上抜け、基準価額が雲の上方、遅行スパンが価格を上抜けで三役好転（強い買いシグナル）
+  - 転換線が基準線を下抜け、基準価額が雲の下方、遅行スパンが価格を下抜けで三役逆転（強い売りシグナル）
+""",
+        )
+
     buy_factors: List[str] = []
     sell_factors: List[str] = []
     neutral_factors: List[str] = []
@@ -549,6 +734,14 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
     else:
         sell_factors.append("+DIが-DIの下方（下降トレンド継続）")
 
+    # 一目均衡表の判定を買い・売り要素に追加
+    if ichimoku_status == "強気":
+        buy_factors.append("一目均衡表が強気シグナル（転換線・基準線・雲の位置が好転）")
+    elif ichimoku_status == "弱気":
+        sell_factors.append("一目均衡表が弱気シグナル（転換線・基準線・雲の位置が逆転）")
+    elif ichimoku_status == "中立":
+        neutral_factors.append("一目均衡表は中立")
+
     strong_buy = 0.0
     strong_sell = 0.0
     if current_ma25 is not None and current_ma200 is not None:
@@ -568,6 +761,10 @@ def generate_technical_summary(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
         strong_buy += 0.5
     elif rsi_value > 70:
         strong_sell += 0.5
+    if ichimoku_status == "強気":
+        strong_buy += 1
+    elif ichimoku_status == "弱気":
+        strong_sell += 1
 
     if strong_buy >= 2 and strong_buy > strong_sell:
         decision = "買い推奨"
