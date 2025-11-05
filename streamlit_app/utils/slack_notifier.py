@@ -23,11 +23,16 @@ class SlackNotifier:
         price: str,
         price_change: str,
     ) -> bool:
-        if not self.is_configured() or old_status != "様子見" or new_status != "買い推奨":
+        if not self.is_configured() or old_status != "様子見":
+            return False
+        if new_status not in ["買い推奨", "売り推奨"]:
             return False
 
+        # 買い推奨と売り推奨で絵文字を変える
+        emoji = "📈" if new_status == "買い推奨" else "📉"
+
         message = {
-            "text": "?? 投資推奨変更通知",
+            "text": f"{emoji} 投資推奨変更通知",
             "blocks": [
                 {
                     "type": "section",
@@ -75,7 +80,7 @@ def check_status_changes(previous_data: Dict[str, Dict[str, str]], current_data:
         name = fund["銘柄名"]
         current_status = fund["ステータス"]
         previous_status = previous_data.get(name, {}).get("ステータス")
-        if previous_status == "様子見" and current_status == "買い推奨":
+        if previous_status == "様子見" and current_status in ["買い推奨", "売り推奨"]:
             changes.append(
                 {
                     "fund_name": name,
