@@ -67,8 +67,12 @@ ruff check .
 
 ### 認証とシークレット管理
 - **Google Sheets API**: サービスアカウントJSONキーを`GOOGLE_SERVICE_ACCOUNT_KEY`環境変数に設定（JSON文字列またはファイルパス）
+  - Streamlit Cloud: `.streamlit/secrets.toml`に`[gcp_service_account]`セクションで設定
+  - ローカル: `.env`ファイルまたは環境変数で設定
 - **OpenAI API**: `OPENAI_API_KEY`環境変数を設定
+- **Google Spreadsheet ID**: `GOOGLE_SPREADSHEET_ID`環境変数（デフォルト値: `1O3nYKIHCrDbjz1yBGrrAnq883Lgotfvvq035tC9wMVM`）
 - **Slack通知**: `SLACK_WEBHOOK_URL`環境変数（オプション）
+- **ローカルデータパス**: `DEFAULT_LOCAL_DATA_PATH`環境変数（デフォルト: `data/sample_nav.csv`）
 
 ### キャッシング戦略
 - `@st.cache_data(ttl=1800)`: Google Sheetsデータの取得結果を30分キャッシュ（`load_available_sheets`, `load_sheet_data`）
@@ -91,3 +95,24 @@ ruff check .
 
 ### AIチャット機能
 各銘柄ごとにチャット履歴を保持し、テクニカル指標データをコンテキストとしてOpenAI APIに送信。会話履歴は`st.session_state.chat_history_per_fund[sheet_name]`に保存。
+
+### OpenAI APIモデル
+現在GPT-5 (`gpt-5-2024-10-14`) を使用。詳細分析生成とチャット機能の両方で利用。
+
+## デプロイメント
+
+### Streamlit Cloud
+`.streamlit/secrets.toml`に以下を設定:
+```toml
+OPENAI_API_KEY = "sk-..."
+GOOGLE_SPREADSHEET_ID = "1O3nYKIHCrDbjz1yBGrrAnq883Lgotfvvq035tC9wMVM"
+SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/..."
+
+[gcp_service_account]
+type = "service_account"
+project_id = "..."
+# ... (Google Cloud サービスアカウントのJSON内容)
+```
+
+### ローカル開発
+`.env.example`を`.env`にコピーして必要な値を設定。

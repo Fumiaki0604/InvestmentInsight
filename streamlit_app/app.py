@@ -91,11 +91,22 @@ with tab_detail:
         default=available_sheets[:1] if available_sheets else None,
     )
 
+    # 終了日を1営業日前に設定（土日を考慮）
+    today = datetime.datetime.now()
+    if today.weekday() == 0:  # 月曜日
+        default_end_date = today - datetime.timedelta(days=3)  # 金曜日
+    elif today.weekday() == 6:  # 日曜日
+        default_end_date = today - datetime.timedelta(days=2)  # 金曜日
+    else:
+        default_end_date = today - datetime.timedelta(days=1)  # 前日
+
+    default_start_date = default_end_date - datetime.timedelta(days=365)
+
     col_start, col_end = st.columns(2)
     with col_start:
-        start_date = st.date_input("開始日", datetime.datetime.now() - datetime.timedelta(days=365))
+        start_date = st.date_input("開始日", default_start_date)
     with col_end:
-        end_date = st.date_input("終了日", datetime.datetime.now())
+        end_date = st.date_input("終了日", default_end_date)
 
     if selected_sheets:
         for sheet_name in selected_sheets:
@@ -123,7 +134,7 @@ with tab_detail:
                     indicators = st.multiselect(
                         "表示するテクニカル指標を選択",
                         ["移動平均線", "RSI", "MACD", "ボリンジャーバンド", "DMI", "一目均衡表"],
-                        default=["移動平均線", "RSI", "MACD", "ボリンジャーバンド", "DMI"],
+                        default=["移動平均線", "RSI", "MACD", "ボリンジャーバンド", "DMI", "一目均衡表"],
                     )
                     indicator_flags = {indicator: True for indicator in indicators}
                     fig = create_price_chart(df, indicator_flags)
@@ -689,13 +700,18 @@ with tab_corr:
             st.subheader("📊 相関分析結果")
             with st.spinner(f"相関分析データを計算中...（{selected_period}）"):
                 correlation_data = get_cached_correlation_data(available_sheets_corr, period_days)
-                if correlation_data:
+                if correlation_data and len(correlation_data) >= 2:
                     st.info(f"✅ データを取得した銘柄数: {len(correlation_data)}銘柄")
                     preview = [f"{name}: {len(series)}日分" for name, series in list(correlation_data.items())[:3]]
                     st.caption(", ".join(preview) + ("..." if len(correlation_data) > 3 else ""))
+                elif correlation_data and len(correlation_data) < 2:
+                    st.error(f"❌ 相関分析には最低2銘柄必要です。現在: {len(correlation_data)}銘柄")
+                    st.info("💡 エラー詳細は上記の「⚠️ データ取得エラーの詳細」を確認してください。")
+                    correlation_data = {}
                 else:
                     st.error("❌ 相関分析データが取得できませんでした。")
-                correlation_matrix = get_cached_correlation_matrix((correlation_data, period_days)) if correlation_data else None
+                    st.info("💡 エラー詳細は上記の「⚠️ データ取得エラーの詳細」を確認してください。")
+                correlation_matrix = get_cached_correlation_matrix((correlation_data, period_days)) if correlation_data and len(correlation_data) >= 2 else None
 
             if correlation_matrix is not None and not correlation_matrix.empty:
                 if selected_fund == "全体マトリックス表示":
