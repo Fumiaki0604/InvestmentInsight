@@ -397,16 +397,20 @@ div.stButton > button:hover {
                     st.session_state.setdefault("processing_message", False)
 
                     def submit_message() -> None:
-                        if st.session_state.processing_message:
+                        if st.session_state.get("processing_message", False):
                             return
-                        message = st.session_state.chat_input_value.strip()
+                        message = st.session_state.get("chat_input_value", "").strip()
                         if not message:
                             return
 
                         st.session_state.processing_message = True
                         history.append({"role": "user", "content": message})
-                        response = chat_with_ai_analyst(technical_data, message, history[-MAX_HISTORY:])
-                        history.append({"role": "assistant", "content": response})
+
+                        try:
+                            response = chat_with_ai_analyst(technical_data, message, history[-MAX_HISTORY:])
+                            history.append({"role": "assistant", "content": response})
+                        except Exception as e:
+                            history.append({"role": "assistant", "content": f"エラー: {str(e)}"})
 
                         # 履歴を制限
                         if len(history) > MAX_HISTORY:
