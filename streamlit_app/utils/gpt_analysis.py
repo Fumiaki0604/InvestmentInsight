@@ -67,9 +67,6 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
                 },
                 {"role": "user", "content": prompt},
             ],
-            max_completion_tokens=900,
-            reasoning_effort="none",
-            temperature=0.5,
         )
 
         analysis = response.choices[0].message.content
@@ -116,9 +113,6 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
         response = client.chat.completions.create(
             model="gpt-5.2",
             messages=messages,
-            max_completion_tokens=500,
-            reasoning_effort="none",
-            temperature=0.7,
         )
 
         analysis = response.choices[0].message.content
