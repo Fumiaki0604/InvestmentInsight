@@ -396,37 +396,28 @@ div.stButton > button:hover {
                     st.session_state.setdefault("chat_input_value", "")
                     st.session_state.setdefault("processing_message", False)
 
-                    def submit_message() -> None:
-                        if st.session_state.get("processing_message", False):
-                            return
-                        message = st.session_state.get("chat_input_value", "").strip()
-                        if not message:
-                            return
-
-                        st.session_state.processing_message = True
-                        history.append({"role": "user", "content": message})
-
-                        try:
-                            response = chat_with_ai_analyst(technical_data, message, history[-MAX_HISTORY:])
-                            history.append({"role": "assistant", "content": response})
-                        except Exception as e:
-                            history.append({"role": "assistant", "content": f"エラー: {str(e)}"})
-
-                        # 履歴を制限
-                        if len(history) > MAX_HISTORY:
-                            st.session_state.chat_history_per_fund[sheet_name] = history[-MAX_HISTORY:]
-
-                        st.session_state.chat_input_value = ""
-                        st.session_state.processing_message = False
-
-                    st.text_input(
+                    user_input = st.text_input(
                         "AIアナリストに質問する（例：「RSIが70を超えていますが、どう判断すべきですか？」）",
-                        key="chat_input_value",
-                        on_change=submit_message,
+                        key=f"chat_input_{sheet_name}",
                     )
-                    if st.button("送信", disabled=st.session_state.processing_message, key=f"chat_send_{sheet_name}"):
-                        if not st.session_state.processing_message:
-                            submit_message()
+
+                    if st.button("送信", key=f"chat_send_{sheet_name}"):
+                        if user_input and user_input.strip():
+                            with st.spinner("AI分析中..."):
+                                history.append({"role": "user", "content": user_input})
+                                try:
+                                    response = chat_with_ai_analyst(technical_data, user_input, history[-MAX_HISTORY:])
+                                    history.append({"role": "assistant", "content": response})
+
+                                    # 履歴を制限
+                                    if len(history) > MAX_HISTORY * 2:
+                                        st.session_state.chat_history_per_fund[sheet_name] = history[-MAX_HISTORY * 2:]
+
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"エラーが発生しました: {str(e)}")
+                        else:
+                            st.warning("質問を入力してください")
             except Exception as exc:  # noqa: BLE001
                 st.error(f"データの読み込み中にエラーが発生しました: {exc}")
     else:
