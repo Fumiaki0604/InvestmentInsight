@@ -59,7 +59,7 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
 """
 
         response = client.chat.completions.create(
-            model="gpt-5",
+            model="gpt-5.2",
             messages=[
                 {
                     "role": "system",
@@ -113,7 +113,7 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
         messages.append({"role": "user", "content": user_message})
 
         response = client.chat.completions.create(
-            model="gpt-5",
+            model="gpt-5.2",
             messages=messages,
             max_tokens=500,
             temperature=0.7,
@@ -123,5 +123,7 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
         if not analysis or not analysis.strip():
             raise ValueError("Empty response")
         return analysis
-    except Exception:
-        return "❌ チャット機能でエラーが発生しました。しばらく時間をおいて再度お試しください。"
+    except Exception as exc:
+        import traceback
+        error_detail = f"{str(exc)}\n{traceback.format_exc()}"
+        return f"❌ チャット機能でエラーが発生しました: {str(exc)}"
