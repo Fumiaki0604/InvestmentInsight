@@ -26,8 +26,8 @@ def _strip_html(text: str) -> str:
     return TAG_RE.sub("", text).strip()
 
 
-def parse_atom_feed(xml_text: str, limit: int = 20) -> List[Dict[str, str]]:
-    root = ET.fromstring(xml_text)
+def parse_atom_feed(xml_data: bytes | str, limit: int = 20) -> List[Dict[str, str]]:
+    root = ET.fromstring(xml_data)
     items: List[Dict[str, str]] = []
     for entry in root.findall(f"{ATOM_NS}entry"):
         title = entry.findtext(f"{ATOM_NS}title", default="").strip()
@@ -55,8 +55,8 @@ def parse_atom_feed(xml_text: str, limit: int = 20) -> List[Dict[str, str]]:
     return items
 
 
-def parse_rss_feed(xml_text: str, limit: int = 20) -> List[Dict[str, str]]:
-    root = ET.fromstring(xml_text)
+def parse_rss_feed(xml_data: bytes | str, limit: int = 20) -> List[Dict[str, str]]:
+    root = ET.fromstring(xml_data)
     channel = root.find("channel")
     if channel is None:
         return []
@@ -79,18 +79,18 @@ def parse_rss_feed(xml_text: str, limit: int = 20) -> List[Dict[str, str]]:
     return items
 
 
-def fetch_atom_feed(url: str, timeout_sec: int = 10) -> str:
+def fetch_atom_feed(url: str, timeout_sec: int = 10) -> bytes:
     response = requests.get(url, timeout=timeout_sec)
     response.raise_for_status()
-    return response.text
+    return response.content
 
 
 def load_atom_entries(url: str, limit: int = 20) -> List[Dict[str, str]]:
-    xml_text = fetch_atom_feed(url)
+    xml_bytes = fetch_atom_feed(url)
     try:
-        root = ET.fromstring(xml_text)
+        root = ET.fromstring(xml_bytes)
     except ET.ParseError:
         return []
     if root.tag.endswith("rss"):
-        return parse_rss_feed(xml_text, limit)
-    return parse_atom_feed(xml_text, limit)
+        return parse_rss_feed(xml_bytes, limit)
+    return parse_atom_feed(xml_bytes, limit)
