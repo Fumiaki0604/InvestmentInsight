@@ -89,8 +89,8 @@ def load_atom_entries(url: str, limit: int = 20) -> List[Dict[str, str]]:
     xml_bytes = fetch_atom_feed(url)
     try:
         root = ET.fromstring(xml_bytes)
-    except ET.ParseError:
-        return []
-    if root.tag.endswith("rss"):
+    except ET.ParseError as e:
+        raise ValueError(f"XML parse error: {e}") from e
+    if root.tag == "rss" or root.tag.endswith("}rss"):
         return parse_rss_feed(xml_bytes, limit)
     return parse_atom_feed(xml_bytes, limit)

@@ -821,6 +821,7 @@ with tab_news:
         try:
             with st.spinner("Loading news..."):
                 entries = load_news(feed_url, max_items, st.session_state.news_refresh_key)
+            st.caption(f"Fetched {len(entries)} entries")
             if not entries:
                 st.info("No entries found.")
             for item in entries:
