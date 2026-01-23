@@ -55,6 +55,30 @@ def parse_atom_feed(xml_text: str, limit: int = 20) -> List[Dict[str, str]]:
     return items
 
 
+def parse_rss_feed(xml_text: str, limit: int = 20) -> List[Dict[str, str]]:
+    root = ET.fromstring(xml_text)
+    channel = root.find("channel")
+    if channel is None:
+        return []
+    items: List[Dict[str, str]] = []
+    for item in channel.findall("item"):
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        pub_date = (item.findtext("pubDate") or "").strip()
+        description = (item.findtext("description") or "").strip()
+        items.append(
+            {
+                "title": title,
+                "link": link,
+                "updated": pub_date,
+                "summary": _strip_html(description),
+            }
+        )
+        if limit and len(items) >= limit:
+            break
+    return items
+
+
 def fetch_atom_feed(url: str, timeout_sec: int = 10) -> str:
     response = requests.get(url, timeout=timeout_sec)
     response.raise_for_status()
@@ -63,4 +87,10 @@ def fetch_atom_feed(url: str, timeout_sec: int = 10) -> str:
 
 def load_atom_entries(url: str, limit: int = 20) -> List[Dict[str, str]]:
     xml_text = fetch_atom_feed(url)
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return []
+    if root.tag.endswith("rss"):
+        return parse_rss_feed(xml_text, limit)
     return parse_atom_feed(xml_text, limit)
