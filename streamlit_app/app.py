@@ -808,40 +808,65 @@ with tab_news:
     if "news_refresh_key" not in st.session_state:
         st.session_state.news_refresh_key = "init"
 
-    feed_url = st.text_input("Feed URL", value="https://www.dir.co.jp/feed/economics.atom")
+    feed_options = {
+        "DIR Economics": "https://www.dir.co.jp/feed/economics.atom",
+        "Bloomberg Economics": "https://feeds.bloomberg.com/economics/news.rss",
+        "Bloomberg Technology": "https://feeds.bloomberg.com/technology/news.rss",
+        "Bloomberg Markets": "https://feeds.bloomberg.com/markets/news.rss",
+    }
+    selected_sources = st.multiselect(
+        "Feeds",
+        options=list(feed_options.keys()),
+        default=list(feed_options.keys()),
+    )
+    custom_feed_url = st.text_input("Custom Feed URL (optional)")
     max_items = st.slider("Items", min_value=5, max_value=50, value=20, step=5)
     if st.button("Refresh news"):
         st.session_state.news_refresh_key = datetime.datetime.utcnow().isoformat()
 
-    if feed_url.strip():
+    selected_urls = [feed_options[name] for name in selected_sources]
+    if custom_feed_url.strip():
+        selected_urls.append(custom_feed_url.strip())
+
+    if selected_urls:
         @st.cache_data(ttl=1800)
-        def load_news(url: str, limit: int, refresh_key: str):
-            return load_atom_entries(url, limit)
+        def load_news(urls: List[str], limit: int, refresh_key: str):
+            results = {}
+            for url in urls:
+                results[url] = load_atom_entries(url, limit)
+            return results
 
         try:
             with st.spinner("Loading news..."):
-                entries = load_news(feed_url, max_items, st.session_state.news_refresh_key)
-            st.caption(f"Fetched {len(entries)} entries")
-            if not entries:
+                entries_by_url = load_news(selected_urls, max_items, st.session_state.news_refresh_key)
+            total_entries = sum(len(v) for v in entries_by_url.values())
+            st.caption(f"Fetched {total_entries} entries")
+            if total_entries == 0:
                 st.info("No entries found.")
-            for item in entries:
-                title = item.get("title") or "(no title)"
-                link = item.get("link") or ""
-                updated = item.get("updated") or ""
-                summary = item.get("summary") or ""
-                if link:
-                    st.markdown(f"- [{title}]({link})")
-                else:
-                    st.markdown(f"- {title}")
-                if updated:
-                    st.caption(updated)
-                if summary:
-                    with st.expander("Summary"):
-                        st.write(summary)
+            for url, entries in entries_by_url.items():
+                source_label = next((k for k, v in feed_options.items() if v == url), url)
+                st.subheader(source_label)
+                if not entries:
+                    st.info("No entries found.")
+                    continue
+                for item in entries:
+                    title = item.get("title") or "(no title)"
+                    link = item.get("link") or ""
+                    updated = item.get("updated") or ""
+                    summary = item.get("summary") or ""
+                    if link:
+                        st.markdown(f"- [{title}]({link})")
+                    else:
+                        st.markdown(f"- {title}")
+                    if updated:
+                        st.caption(updated)
+                    if summary:
+                        with st.expander("Summary"):
+                            st.write(summary)
         except Exception as exc:  # noqa: BLE001
             st.error(f"Failed to load news: {exc}")
     else:
-        st.info("Enter a feed URL to load news.")
+        st.info("Select at least one feed to load news.")
 
 st.markdown("---")
 st.markdown("データ出典: Google Spreadsheet")
