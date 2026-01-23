@@ -29,6 +29,7 @@ from utils.correlation_helper import (
 )
 from utils.gpt_analysis import chat_with_ai_analyst, generate_personalized_analysis
 from utils.gsheet_helper import get_sheet_data
+from utils.news_feed import load_atom_entries
 from utils.slack_notifier import (
     SlackNotifier,
     check_status_changes,
@@ -66,7 +67,7 @@ st.set_page_config(page_title="投資信託ナビゲーター", page_icon="📊"
 st.title("投資信託ナビゲーター")
 st.markdown("各投資信託の基準価額、移動平均線の推移をグラフで表示します。")
 
-tab_detail, tab_list, tab_corr = st.tabs(["詳細分析", "銘柄一覧", "相関分析"])
+tab_detail, tab_list, tab_corr, tab_news = st.tabs(["詳細分析", "銘柄一覧", "相関分析", "ニュース"])
 
 
 with tab_detail:
@@ -800,6 +801,46 @@ with tab_corr:
         )
     else:
         st.error("シートデータの読み込みに失敗しました。")
+
+with tab_news:
+    st.header("Finance News")
+    st.caption("Source: RSS/Atom feed")
+    if "news_refresh_key" not in st.session_state:
+        st.session_state.news_refresh_key = "init"
+
+    feed_url = st.text_input("Feed URL", value="https://www.dir.co.jp/feed/economics.atom")
+    max_items = st.slider("Items", min_value=5, max_value=50, value=20, step=5)
+    if st.button("Refresh news"):
+        st.session_state.news_refresh_key = datetime.datetime.utcnow().isoformat()
+
+    if feed_url.strip():
+        @st.cache_data(ttl=1800)
+        def load_news(url: str, limit: int, refresh_key: str):
+            return load_atom_entries(url, limit)
+
+        try:
+            with st.spinner("Loading news..."):
+                entries = load_news(feed_url, max_items, st.session_state.news_refresh_key)
+            if not entries:
+                st.info("No entries found.")
+            for item in entries:
+                title = item.get("title") or "(no title)"
+                link = item.get("link") or ""
+                updated = item.get("updated") or ""
+                summary = item.get("summary") or ""
+                if link:
+                    st.markdown(f"- [{title}]({link})")
+                else:
+                    st.markdown(f"- {title}")
+                if updated:
+                    st.caption(updated)
+                if summary:
+                    with st.expander("Summary"):
+                        st.write(summary)
+        except Exception as exc:  # noqa: BLE001
+            st.error(f"Failed to load news: {exc}")
+    else:
+        st.info("Enter a feed URL to load news.")
 
 st.markdown("---")
 st.markdown("データ出典: Google Spreadsheet")
