@@ -7,7 +7,26 @@ import streamlit as st
 from openai import OpenAI
 
 
-def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
+def _format_news_context(news_items: List[Dict[str, str]] | None, max_items: int = 10) -> str:
+    if not news_items:
+        return ""
+    items = news_items[:max_items]
+    lines = ["【直近の経済ニュース】"]
+    for item in items:
+        title = item.get("title", "")
+        date = item.get("updated", "")
+        summary = item.get("summary", "")[:100] if item.get("summary") else ""
+        if title:
+            line = f"- {title}"
+            if date:
+                line += f" ({date})"
+            lines.append(line)
+            if summary:
+                lines.append(f"  要約: {summary}...")
+    return "\n".join(lines)
+
+
+def generate_personalized_analysis(technical_data: Dict[str, Any], news_items: List[Dict[str, str]] | None = None, fund_name: str | None = None) -> str:
     try:
         # Try Streamlit secrets first, fallback to environment variable
         api_key = None
@@ -34,9 +53,16 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
         except (IndexError, ValueError):
             current_price = 0.0
 
+        news_context = _format_news_context(news_items)
+        news_section = f"\n\n{news_context}\n" if news_context else ""
+        news_instruction = "5. ニュースを踏まえた見通し（関連ニュースがあれば具体的に引用して言及）" if news_context else ""
+        fund_display = fund_name if fund_name else "対象銘柄"
+
         prompt = f"""
-あなたは投資信託の分析に特化した金融アドバイザーです。
+あなたは投資信託「{fund_display}」の分析に特化した金融アドバイザーです。
 以下のテクニカル指標データに基づいて、簡潔で具体的な投資分析と1ヶ月後の価格予測レンジを提供してください。
+
+【分析対象】{fund_display}
 
 テクニカル指標の状況：
 - 価格動向: {price_info}
@@ -49,22 +75,26 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
 - MACD: {macd_info}
 - 全体的なトレンド: {trend}
 - 現在の投資判断: {recommendation}
-
-以下の4点に焦点を当てた分析を提供してください：
+{news_section}
+以下の点に焦点を当てた分析を提供してください：
 
 1. 移動平均線分析
 2. 市場分析
 3. 投資判断
 4. 1ヶ月後の価格予測レンジ（具体的なレンジと根拠）
+{news_instruction}
 """
+
+        system_prompt = f"""あなたは投資信託「{fund_display}」専属のアナリストです。
+この銘柄について熟知しているため、銘柄名を聞き返す必要はありません。
+具体的な数値に基づいた簡潔で実用的な分析を提供してください。
+予測では根拠を明示してください。
+ニュース情報が提供されている場合は、関連するニュースを具体的に引用して分析に反映してください。"""
 
         response = client.chat.completions.create(
             model="gpt-5.2",
             messages=[
-                {
-                    "role": "system",
-                    "content": "投資信託アナリストとして、具体的な数値に基づいた簡潔で実用的な分析を提供してください。予測では根拠を明示してください。",
-                },
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
         )
@@ -82,7 +112,7 @@ def generate_personalized_analysis(technical_data: Dict[str, Any]) -> str:
         return "❌ AI分析の生成中にエラーが発生しました。テクニカル指標の分析結果をご参照ください。"
 
 
-def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat_history: List[Dict[str, str]] | None = None) -> str:
+def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat_history: List[Dict[str, str]] | None = None, news_items: List[Dict[str, str]] | None = None, fund_name: str | None = None) -> str:
     try:
         # Try Streamlit secrets first, fallback to environment variable
         api_key = None
@@ -92,9 +122,16 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
             api_key = os.environ.get("OPENAI_API_KEY")
 
         client = OpenAI(api_key=api_key)
-        system_context = f"""
-あなたは投資信託の分析に特化した金融アドバイザーです。
-以下のテクニカル指標データに基づいて、ユーザーの質問に答えてください。
+        news_context = _format_news_context(news_items)
+        news_section = f"\n\n{news_context}" if news_context else ""
+        fund_display = fund_name if fund_name else "対象銘柄"
+
+        system_context = f"""あなたは投資信託「{fund_display}」専属のアナリストです。
+この銘柄について熟知しているため、銘柄名を聞き返す必要はありません。
+以下のテクニカル指標データと直近のニュースに基づいて、ユーザーの質問に答えてください。
+ニュース情報が提供されている場合は、関連するニュースを具体的に引用して分析に反映してください。
+
+【分析対象】{fund_display}
 
 テクニカル指標の状況：
 - 価格動向: {technical_data.get('price_info', '不明')}
@@ -103,6 +140,7 @@ def chat_with_ai_analyst(technical_data: Dict[str, Any], user_message: str, chat
 - トレンド: {technical_data.get('trend', '不明')}
 - 投資判断: {technical_data.get('recommendation', '不明')}
 - 移動平均線の状態: {technical_data.get('ma_cross_status', '不明')}
+{news_section}
 """
 
         messages: List[Dict[str, str]] = [{"role": "system", "content": system_context}]

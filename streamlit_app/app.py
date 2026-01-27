@@ -41,6 +41,27 @@ import os
 
 STORAGE_PATH = Path("previous_fund_status.json")
 
+# News feed URLs for AI context
+NEWS_FEED_URLS = [
+    "https://www.dir.co.jp/feed/economics.atom",
+    "https://feeds.bloomberg.com/economics/news.rss",
+    "https://feeds.bloomberg.com/markets/news.rss",
+]
+
+
+@st.cache_data(ttl=1800)
+def get_news_for_ai_context(limit_per_feed: int = 5) -> List[Dict[str, str]]:
+    """AI分析用にニュースを取得"""
+    all_news = []
+    for url in NEWS_FEED_URLS:
+        try:
+            entries = load_atom_entries(url, limit_per_feed)
+            all_news.extend(entries)
+        except Exception:
+            pass
+    return all_news
+
+
 # Get SPREADSHEET_ID from secrets or environment variable
 if hasattr(st, "secrets") and "GOOGLE_SPREADSHEET_ID" in st.secrets:
     SPREADSHEET_ID = st.secrets["GOOGLE_SPREADSHEET_ID"]
@@ -368,10 +389,13 @@ div.stButton > button:hover {
                 if st.button("🤖 AIによる詳細分析を表示", key=f"ai_analysis_{sheet_name}"):
                     with st.spinner("AI分析を生成中..."):
                         try:
-                            ai_analysis = generate_personalized_analysis(technical_data)
+                            news_for_ai = get_news_for_ai_context()
+                            ai_analysis = generate_personalized_analysis(technical_data, news_items=news_for_ai, fund_name=sheet_name)
                             if ai_analysis:
                                 st.markdown("### ■AIによる詳細分析")
                                 st.markdown(ai_analysis)
+                                if news_for_ai:
+                                    st.caption(f"📰 {len(news_for_ai)}件の直近ニュースを参照")
                         except Exception as exc:  # noqa: BLE001
                             st.error(f"AI分析の生成中にエラーが発生しました: {exc}")
 
@@ -407,7 +431,8 @@ div.stButton > button:hover {
                             with st.spinner("AI分析中..."):
                                 history.append({"role": "user", "content": user_input})
                                 try:
-                                    response = chat_with_ai_analyst(technical_data, user_input, history[-MAX_HISTORY:])
+                                    news_for_ai = get_news_for_ai_context()
+                                    response = chat_with_ai_analyst(technical_data, user_input, history[-MAX_HISTORY:], news_items=news_for_ai, fund_name=sheet_name)
                                     history.append({"role": "assistant", "content": response})
 
                                     # 履歴を制限
